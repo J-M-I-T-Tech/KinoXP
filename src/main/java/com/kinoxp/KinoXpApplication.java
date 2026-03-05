@@ -9,4 +9,7 @@ public class KinoXpApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(KinoXpApplication.class, args);
 	}
+
+	// ahahahah
 }
+
