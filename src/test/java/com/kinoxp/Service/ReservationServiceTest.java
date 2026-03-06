@@ -50,11 +50,10 @@ public class ReservationServiceTest {
             assertEquals(130,acutalPrice, "film der præcis er 170 minutter eller der under, har ingen gebyr" );
         }
 
-        // US: 3.7: Som kunde vil jeg opleve at prisen justeres afhængigt af sæderækker.
 
     @Test
     void calculatePrice_AddRowFee_whenItIsPremium(){
-
+        // US: 3.7: Som kunde vil jeg opleve at prisen justeres afhængigt af sæderækker.
     //Arrange
         Movie movie = new Movie("Titanic", 195, AgeLimit.ELEVEN_PLUS);
         Seat premiumSeat = new Seat(12,8);
@@ -67,6 +66,22 @@ public class ReservationServiceTest {
         //Assert
         assertEquals(155.0, actualPrice, "Prisen skal stige med 25 kr., når sædet er på en premium række");
 
+    }
+
+    @Test
+    void calculatePrice_WhenItIsStandardSeat(){
+    // når der ikke er gebyr sæderække
+    //Arrange
+    Movie movie = new Movie("Titanic", 170, AgeLimit.ELEVEN_PLUS);
+    Seat standardSeat = new Seat(17,6);
+    double standardPrice = 130.0;
+    double rowFee = 25.0;
+
+    //act
+        double actualPrice = reservationService.calculateSeatPrice(standardSeat,standardPrice,rowFee,movie);
+
+    // Assert
+    assertEquals(130,actualPrice,"standard pris på et sæde, række 7 og under");
     }
 
 
