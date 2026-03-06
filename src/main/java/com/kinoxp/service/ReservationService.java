@@ -12,6 +12,7 @@ public class ReservationService {
         }
         // her skal returnerer den normalprisen.
     return standardPrice;
+        //se
 
     }
 
