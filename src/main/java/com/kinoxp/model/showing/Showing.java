@@ -2,15 +2,28 @@ package com.kinoxp.model.showing;
 
 import com.kinoxp.model.movie.Movie;
 import com.kinoxp.model.theater.Theater;
+import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
 
+@Entity
 public class Showing {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int showingId;
+
+    @ManyToOne
+    @JoinColumn(name = "movie_id")
     private Movie movie;
+
+    @ManyToOne
+    @JoinColumn(name = "theater_id")
     private Theater theater;
+
     private LocalDateTime startTime;
     private LocalDateTime endTime;
+
+    public Showing() {}
 
     public Showing(int showingId, Movie movie, Theater theater,
                    LocalDateTime startTime, LocalDateTime endTime) {

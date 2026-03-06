@@ -1,17 +1,29 @@
 package com.kinoxp.model.user;
 
+import jakarta.persistence.*;
+
 import java.time.LocalDate;
 
+@Entity
+@Table(name = "users")
 public class User {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int userID;
+
     private String name;
     private LocalDate dateOfBirth;
+
+    @Enumerated(EnumType.STRING)
     private Role role;
+
     private String email;
     private String password;
 
-    public User (int userID, String name, LocalDate dateOfBirth,
-                 Role role, String email, String password){
+    public User() {}
+
+    public User(int userID, String name, LocalDate dateOfBirth,
+                Role role, String email, String password){
         this.userID = userID;
         this.name = name;
         this.dateOfBirth = dateOfBirth;

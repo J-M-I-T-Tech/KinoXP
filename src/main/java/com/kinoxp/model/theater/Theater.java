@@ -1,10 +1,7 @@
 package com.kinoxp.model.theater;
 
 import com.kinoxp.model.seat.Seat;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 import java.util.List;
 
@@ -17,8 +14,9 @@ public class Theater {
     private String theaterName;
     private int totalRows;
     private int totalSeats;
-    private List<Seat> seats;
 
+    @OneToMany(mappedBy = "theater", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Seat> seats;
 
     public Theater(Long theaterId, String theaterName, int totalRows, int totalSeats, List<Seat> seats) {
         this.theaterId = theaterId;

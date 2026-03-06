@@ -1,12 +1,22 @@
 package com.kinoxp.model.seat;
 
 import com.kinoxp.model.theater.Theater;
+import jakarta.persistence.*;
 
+@Entity
 public class Seat {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int seatId;
+
+    @ManyToOne
+    @JoinColumn(name = "theater_id")
     private Theater theater;
+
     private int seatNumber;
     private int rowNumber;
+
+    public Seat() {}
 
     public Seat(int seatId, Theater theater, int seatNumber, int rowNumber) {
         this.seatId = seatId;
