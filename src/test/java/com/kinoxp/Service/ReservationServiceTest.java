@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ReservationServiceTest {
 
-    private ReservationService reservationService;
+    private git ReservationService reservationService;
 
 @BeforeEach
     void setUp(){

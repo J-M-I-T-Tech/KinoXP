@@ -1,11 +1,9 @@
 package com.kinoxp.model.theater;
 
 import com.kinoxp.model.seat.Seat;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -17,15 +15,16 @@ public class Theater {
     private String theaterName;
     private int totalRows;
     private int totalSeats;
-    private List<Seat> seats;
 
+    @OneToMany(mappedBy = "theater", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Seat> seats;
 
     public Theater(Long theaterId, String theaterName, int totalRows, int totalSeats, List<Seat> seats) {
         this.theaterId = theaterId;
         this.theaterName = theaterName;
         this.totalRows = totalRows;
         this.totalSeats = totalSeats;
-        this.seats = seats;
+        this.seats = new ArrayList<>(seats);
     }
 
     public Theater(){}
@@ -67,6 +66,6 @@ public class Theater {
     }
 
     public void setSeats(List<Seat> seats) {
-        this.seats = seats;
+        this.seats = new ArrayList<>(seats);
     }
 }

@@ -1,17 +1,34 @@
 package com.kinoxp.model.movie;
 
+import jakarta.persistence.*;
+
+@Entity
 public class Movie {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int movieId;
+
     private String title;
     private int releaseYear;
+
+    @Enumerated(EnumType.STRING)
     private Genre genre;
+
     private int durationInMinutes;
+
+    @Enumerated(EnumType.STRING)
     private Format format;
+
+    @Enumerated(EnumType.STRING)
     private AgeLimit ageLimit;
-    private Language languge;
+
+    @Enumerated(EnumType.STRING)
+    private Language language;
+
+    public Movie() {}
 
     public Movie(int movieId, String title, int releaseYear, Genre genre,
-                 int durationInMinutes, Format format, AgeLimit ageLimit, Language languge) {
+                 int durationInMinutes, Format format, AgeLimit ageLimit, Language language) {
         this.movieId = movieId;
         this.title = title;
         this.releaseYear = releaseYear;
@@ -19,17 +36,8 @@ public class Movie {
         this.durationInMinutes = durationInMinutes;
         this.format = format;
         this.ageLimit = ageLimit;
-        this.languge = languge;
+        this.language = language;
     }
-
-    // constructor til test US:3.6
-    public Movie(String title, int durationInMinutes, AgeLimit ageLimit) {
-        this.title = title;
-        this.durationInMinutes = durationInMinutes;
-        this.ageLimit = ageLimit;
-    }
-
-
 
     public int getMovieId() {
         return movieId;
@@ -87,11 +95,11 @@ public class Movie {
         this.ageLimit = ageLimit;
     }
 
-    public Language getLanguge() {
-        return languge;
+    public Language getLanguage() {
+        return language;
     }
 
-    public void setLanguge(Language languge) {
-        this.languge = languge;
+    public void setLanguage(Language language) {
+        this.language = language;
     }
 }
