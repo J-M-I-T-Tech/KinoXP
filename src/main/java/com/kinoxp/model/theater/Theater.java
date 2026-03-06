@@ -1,12 +1,12 @@
 package com.kinoxp.model.theater;
 
 import com.kinoxp.model.seat.Seat;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import com.kinoxp.model.showing.Showing;
+import jakarta.persistence.*;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 public class Theater {
@@ -29,6 +29,9 @@ public class Theater {
     }
 
     public Theater(){}
+
+    @OneToMany(mappedBy = "showing")
+    private List <Showing> showings = new ArrayList<>();
 
     public Long getTheaterId() {
         return theaterId;
