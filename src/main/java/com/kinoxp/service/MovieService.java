@@ -31,4 +31,11 @@ public class MovieService {
     public List<Movie> getAllMovies() {
         return movies;
     }
+
+    public Movie getMovieById(int id) {
+        return movies.stream()
+                .filter(movie -> movie.getMovieId() == id)
+                .findFirst()
+                .orElse(null);
+    }
 }
