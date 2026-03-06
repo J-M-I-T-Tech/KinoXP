@@ -16,14 +16,21 @@ public class Seat {
     private int seatNumber;
     private int rowNumber;
 
-    public Seat() {}
-
     public Seat(int seatId, Theater theater, int seatNumber, int rowNumber) {
         this.seatId = seatId;
         this.theater = theater;
         this.seatNumber = seatNumber;
         this.rowNumber = rowNumber;
     }
+    public Seat(int seatNumber, int rowNumber) {
+        this.seatNumber = seatNumber;
+        this.rowNumber = rowNumber;
+    }
+
+    public Seat() {
+
+    }
+
 
     public int getSeatId() {
         return seatId;

@@ -2,6 +2,7 @@ package com.kinoxp.Service;
 
 import com.kinoxp.model.movie.AgeLimit;
 import com.kinoxp.model.movie.Movie;
+import com.kinoxp.model.seat.Seat;
 import com.kinoxp.service.ReservationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -45,9 +46,30 @@ public class ReservationServiceTest {
         //Film på præcis 170 min eller derunder skal afregnes til normalpris
         double acutalPrice = reservationService.calculateMoviePrice(limitMovie,standardPrice,langFilmFee);
 
-            //Arrange
+            //Assert
             assertEquals(130,acutalPrice, "film der præcis er 170 minutter eller der under, har ingen gebyr" );
         }
+
+        // US: 3.7: Som kunde vil jeg opleve at prisen justeres afhængigt af sæderækker.
+
+    @Test
+    void calculatePrice_AddRowFee_whenItIsPremium(){
+
+    //Arrange
+        Movie movie = new Movie("Titanic", 195, AgeLimit.ELEVEN_PLUS);
+        Seat premiumSeat = new Seat(12,8);
+        double standardPrice = 130.0;
+        double rowFee = 25.0;
+
+        //Act
+        double actualPrice = reservationService.calculateSeatPrice(premiumSeat,standardPrice,rowFee);
+
+        //Assert
+        assertEquals(155.0, actualPrice, "Prisen skal stige med 25 kr., når sædet er på en premium række");
+
+    }
+
+
         }
       
 

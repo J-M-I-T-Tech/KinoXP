@@ -1,6 +1,8 @@
 package com.kinoxp.service;
 
 import com.kinoxp.model.movie.Movie;
+import com.kinoxp.model.seat.Seat;
+import com.kinoxp.model.theater.Theater;
 
 public class ReservationService {
 
@@ -12,8 +14,16 @@ public class ReservationService {
         }
         // her skal returnerer den normalprisen.
     return standardPrice;
-        //se
 
+
+    }
+
+    public double calculateSeatPrice(Seat seat, double standardPrice, double rowFee) {
+
+        if (seat.getRowNumber() > 7){
+            return standardPrice +  rowFee;
+        }
+        return standardPrice;
     }
 
 }
