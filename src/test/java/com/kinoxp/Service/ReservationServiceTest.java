@@ -1,5 +1,8 @@
 package com.kinoxp.Service;
 
+import com.kinoxp.model.movie.AgeLimit;
+import com.kinoxp.model.movie.Movie;
+import com.kinoxp.service.ReservationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -16,7 +19,7 @@ public class ReservationServiceTest {
 @Test
     void calculatePrice_AddFee_WhenMovieIsOver170Minutes(){
     //Arrange
-    Movie langFilm = new Movie("Titanic", 195, "12+");
+    Movie langFilm = new Movie("Titanic", 195, AgeLimit.ELEVEN_PLUS);
     double standardPrice = 130.0;
     double langFilmFee = 20.0;
 
@@ -33,7 +36,7 @@ public class ReservationServiceTest {
     void calculatePrice_NormalPrice_WithoutFee_WhenMovieIsExactly170Minutter(){
 
     //Arrange
-        Movie limitMovie = new Movie("præcis 170", 170 , "12+");
+        Movie limitMovie = new Movie("præcis 170", 170 , AgeLimit.FIFTEEN_PLUS);
         double standardPrice = 130.0;
         double langFilmFee = 20.0;
 

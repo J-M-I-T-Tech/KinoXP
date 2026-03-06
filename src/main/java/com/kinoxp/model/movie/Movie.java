@@ -22,6 +22,15 @@ public class Movie {
         this.languge = languge;
     }
 
+    // constructor til test US:3.6
+    public Movie(String title, int durationInMinutes, AgeLimit ageLimit) {
+        this.title = title;
+        this.durationInMinutes = durationInMinutes;
+        this.ageLimit = ageLimit;
+    }
+
+
+
     public int getMovieId() {
         return movieId;
     }
