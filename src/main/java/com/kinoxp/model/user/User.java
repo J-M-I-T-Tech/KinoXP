@@ -10,7 +10,8 @@ public class User {
     private String email;
     private String password;
 
-    public User (int userID, String name, LocalDate dateOfBirth, Role role, String email, String password){
+    public User (int userID, String name, LocalDate dateOfBirth,
+                 Role role, String email, String password){
         this.userID = userID;
         this.name = name;
         this.dateOfBirth = dateOfBirth;
@@ -66,8 +67,4 @@ public class User {
     public void setPassword(String password) {
         this.password = password;
     }
-
-
-
-
 }
