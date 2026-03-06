@@ -28,5 +28,23 @@ public class ReservationServiceTest {
     assertEquals(150.0, actualPrice, "der betales et gebyr på film over 170 minutter");
 }
 //TODO prisen på film der er ikke er et gebyr på.
+       // Test for når der ikke er et gebyr på, altså når filmen er 170 minutter og derunder.
+    @Test
+    void calculatePrice_NormalPrice_WithoutFee_WhenMovieIsExactly170Minutter(){
 
-}
+    //Arrange
+        Movie limitMovie = new Movie("præcis 170", 170 , "12+");
+        double standardPrice = 130.0;
+        double langFilmFee = 20.0;
+
+
+        //Act
+        //Film på præcis 170 min eller derunder skal afregnes til normalpris
+        double acutalPrice = reservationService.calculateMoviePrice(limitMovie,standardPrice,langFilmFee);
+
+            //Arrange
+            assertEquals(130,acutalPrice, "film der præcis er 170 minutter eller der under, har ingen gebyr" );
+        }
+        }
+      
+
