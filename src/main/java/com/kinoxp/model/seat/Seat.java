@@ -1,4 +1,4 @@
-package com.kinoxp.model;
+package com.kinoxp.model.seat;
 
 public class Seat {
     private int seatId;
