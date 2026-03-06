@@ -62,7 +62,7 @@ public class ReservationServiceTest {
         double rowFee = 25.0;
 
         //Act
-        double actualPrice = reservationService.calculateSeatPrice(premiumSeat,standardPrice,rowFee);
+        double actualPrice = reservationService.calculateSeatPrice(premiumSeat,standardPrice,rowFee,movie);
 
         //Assert
         assertEquals(155.0, actualPrice, "Prisen skal stige med 25 kr., når sædet er på en premium række");

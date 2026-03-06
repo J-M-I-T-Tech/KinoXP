@@ -18,7 +18,7 @@ public class ReservationService {
 
     }
 
-    public double calculateSeatPrice(Seat seat, double standardPrice, double rowFee) {
+    public double calculateSeatPrice(Seat seat, double standardPrice, double rowFee, Movie movie) {
 
         if (seat.getRowNumber() > 7){
             return standardPrice +  rowFee;
