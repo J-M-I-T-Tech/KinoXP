@@ -1,5 +1,7 @@
 package com.kinoxp.model.reservation;
 
+import com.kinoxp.model.showing.Showing;
+import com.kinoxp.model.ticket.Ticket;
 import com.kinoxp.model.user.User;
 
 import java.time.LocalDate;

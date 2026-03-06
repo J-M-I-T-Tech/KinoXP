@@ -1,6 +1,7 @@
 package com.kinoxp.model.ticket;
 
 import com.kinoxp.model.reservation.Reservation;
+import com.kinoxp.model.seat.Seat;
 
 public class Ticket {
     private int ticketID;
