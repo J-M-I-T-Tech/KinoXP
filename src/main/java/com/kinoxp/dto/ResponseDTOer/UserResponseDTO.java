@@ -10,17 +10,15 @@ public class UserResponseDTO {
     private LocalDate dateOfBirth;
     private Role role;
     private String email;
-    private String password;
 
     public UserResponseDTO(){}
 
-    public UserResponseDTO(Long userId, String name, LocalDate dateOfBirth, Role role, String email, String password) {
+    public UserResponseDTO(Long userId, String name, LocalDate dateOfBirth, Role role, String email) {
         this.userId = userId;
         this.name = name;
         this.dateOfBirth = dateOfBirth;
         this.role = role;
         this.email = email;
-        this.password = password;
     }
 
     public Long getUserId() {
@@ -63,11 +61,5 @@ public class UserResponseDTO {
         this.email = email;
     }
 
-    public String getPassword() {
-        return password;
-    }
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
 }

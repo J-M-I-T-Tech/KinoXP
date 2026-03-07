@@ -15,17 +15,15 @@ public class Theater {
     private String theaterNumber;
     private int totalRows;
     private int seatsPerRow;
-    private int totalSeats;
 
     @OneToMany(mappedBy = "theater", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Seat> seats;
 
-    public Theater(Long theaterId, String theaterNumber, int totalRows, int seatsPerRow, int totalSeats, List<Seat> seats) {
+    public Theater(Long theaterId, String theaterNumber, int totalRows, int seatsPerRow, List<Seat> seats) {
         this.theaterId = theaterId;
         this.theaterNumber = theaterNumber;
         this.totalRows = totalRows;
         this.seatsPerRow = seatsPerRow;
-        this.totalSeats = totalSeats;
         this.seats = new ArrayList<>(seats);
     }
 
@@ -61,14 +59,6 @@ public class Theater {
 
     public void setSeatsPerRow(int seatsPerRow) {
         this.seatsPerRow = seatsPerRow;
-    }
-
-    public int getTotalSeats() {
-        return totalSeats;
-    }
-
-    public void setTotalSeats(int totalSeats) {
-        this.totalSeats = totalSeats;
     }
 
     public List<Seat> getSeats() {
