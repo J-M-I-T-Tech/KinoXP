@@ -13,7 +13,7 @@ import java.util.List;
 public class Reservation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long reservationId;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
@@ -33,9 +33,9 @@ public class Reservation {
     @OneToMany(mappedBy = "reservation", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Ticket> tickets;
 
-    public Reservation(Long id, User user, Showing showing, int rowNumber,
+    public Reservation(Long reservationId, User user, Showing showing, int rowNumber,
                        LocalDateTime created, double totalPrice, Status status, List<Ticket> tickets) {
-        this.id = id;
+        this.reservationId = reservationId;
         this.user = user;
         this.showing = showing;
         this.rowNumber = rowNumber;
@@ -47,12 +47,12 @@ public class Reservation {
 
     public Reservation() {}
 
-    public Long getId() {
-        return id;
+    public Long getReservationId() {
+        return reservationId;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setId(Long reservationId) {
+        this.reservationId = reservationId;
     }
 
     public User getUser() {

@@ -8,7 +8,7 @@ import jakarta.persistence.*;
 public class Ticket {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int ticketID;
+    private Long ticketID;
 
     @ManyToOne
     @JoinColumn(name = "reservation_id")
@@ -22,18 +22,18 @@ public class Ticket {
 
     public Ticket() {}
 
-    public Ticket(int ticketID, Reservation reservation, Seat seat, double price) {
+    public Ticket(Long ticketID, Reservation reservation, Seat seat, double price) {
         this.ticketID = ticketID;
         this.reservation = reservation;
         this.seat = seat;
         this.price = price;
     }
 
-    public int getTicketID() {
+    public Long getTicketID() {
         return ticketID;
     }
 
-    public void setTicketID(int ticketID) {
+    public void setTicketID(Long ticketID) {
         this.ticketID = ticketID;
     }
 

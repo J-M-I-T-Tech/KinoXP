@@ -9,7 +9,7 @@ import java.time.LocalDate;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int userID;
+    private Long userID;
 
     private String name;
     private LocalDate dateOfBirth;
@@ -22,26 +22,26 @@ public class User {
 
     public User() {}
 
-    public User(int userID, String name, LocalDate dateOfBirth,
+    public User(Long userID, String name, LocalDate dateOfBirth,
                 Role role, String email, String password){
         this.userID = userID;
-        this.name = name;
+        this.name= name;
         this.dateOfBirth = dateOfBirth;
         this.role = role;
         this.email = email;
         this.password = password;
     }
 
-    public int getUserID() {
+    public Long getUserID() {
         return userID;
     }
 
-    public void setUserID(int userID) {
+    public void setUserID(Long userID) {
         this.userID = userID;
     }
 
     public String getName() {
-        return name;
+        return name ;
     }
 
     public void setName(String name) {
