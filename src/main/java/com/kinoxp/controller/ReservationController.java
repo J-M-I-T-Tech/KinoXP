@@ -34,10 +34,14 @@ public class ReservationController {
 //    }
 
 
-    // TODO: Hent reservation
-//    @GetMapping
+//    //TODO: Hent reservation via id
+//    @GetMapping("{id]")
+//    public Reservation getReservationById(@PathVariable int id) {
+//
+//    }
 
-    //TODO: Hent reservation via id
+
+    // TODO: Hent reservation
 //    @GetMapping("{id}")
 
     //TODO: Update
