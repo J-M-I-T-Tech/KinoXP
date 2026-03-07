@@ -1,58 +1,21 @@
-package com.kinoxp.model.movie;
+package com.kinoxp.dto.CreateDTOer;
 
-import jakarta.persistence.*;
+import com.kinoxp.model.movie.AgeLimit;
+import com.kinoxp.model.movie.Format;
+import com.kinoxp.model.movie.Genre;
+import com.kinoxp.model.movie.Language;
 
-@Entity
-public class Movie {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long movieId;
-
+public class MovieCreateDTO {
     private String title;
     private int releaseYear;
-
-    @Enumerated(EnumType.STRING)
     private Genre genre;
-
     private int durationInMinutes;
-
-    @Enumerated(EnumType.STRING)
     private Format format;
-
-    @Enumerated(EnumType.STRING)
     private AgeLimit ageLimit;
-
-    @Enumerated(EnumType.STRING)
     private Language language;
 
-    public Movie() {}
+    private MovieCreateDTO(){}
 
-    public Movie(Long movieId, String title, int releaseYear, Genre genre,
-                 int durationInMinutes, Format format, AgeLimit ageLimit, Language language) {
-        this.movieId = movieId;
-        this.title = title;
-        this.releaseYear = releaseYear;
-        this.genre = genre;
-        this.durationInMinutes = durationInMinutes;
-        this.format = format;
-        this.ageLimit = ageLimit;
-        this.language = language;
-    }
-
-    public Movie(String title, int durationInMinutes, AgeLimit ageLimit) {
-        this.title = title;
-        this.durationInMinutes = durationInMinutes;
-        this.ageLimit = ageLimit;
-    }
-
-
-    public Long getMovieId() {
-        return movieId;
-    }
-
-    public void setMovieId(Long movieId) {
-        this.movieId = movieId;
-    }
 
     public String getTitle() {
         return title;

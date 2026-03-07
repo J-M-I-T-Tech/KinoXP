@@ -1,34 +1,23 @@
-package com.kinoxp.model.movie;
+package com.kinoxp.dto.ResponseDTOer;
 
-import jakarta.persistence.*;
+import com.kinoxp.model.movie.AgeLimit;
+import com.kinoxp.model.movie.Format;
+import com.kinoxp.model.movie.Genre;
+import com.kinoxp.model.movie.Language;
 
-@Entity
-public class Movie {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class MovieResponseDTO {
     private Long movieId;
-
     private String title;
     private int releaseYear;
-
-    @Enumerated(EnumType.STRING)
     private Genre genre;
-
     private int durationInMinutes;
-
-    @Enumerated(EnumType.STRING)
     private Format format;
-
-    @Enumerated(EnumType.STRING)
     private AgeLimit ageLimit;
-
-    @Enumerated(EnumType.STRING)
     private Language language;
 
-    public Movie() {}
+    public MovieResponseDTO(){}
 
-    public Movie(Long movieId, String title, int releaseYear, Genre genre,
-                 int durationInMinutes, Format format, AgeLimit ageLimit, Language language) {
+    public MovieResponseDTO(Long movieId, String title, int releaseYear, Genre genre, int durationInMinutes, Format format, AgeLimit ageLimit, Language language) {
         this.movieId = movieId;
         this.title = title;
         this.releaseYear = releaseYear;
@@ -38,13 +27,6 @@ public class Movie {
         this.ageLimit = ageLimit;
         this.language = language;
     }
-
-    public Movie(String title, int durationInMinutes, AgeLimit ageLimit) {
-        this.title = title;
-        this.durationInMinutes = durationInMinutes;
-        this.ageLimit = ageLimit;
-    }
-
 
     public Long getMovieId() {
         return movieId;

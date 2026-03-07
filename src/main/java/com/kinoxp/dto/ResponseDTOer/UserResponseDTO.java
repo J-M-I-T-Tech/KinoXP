@@ -1,47 +1,38 @@
-package com.kinoxp.model.user;
+package com.kinoxp.dto.ResponseDTOer;
 
-import jakarta.persistence.*;
+import com.kinoxp.model.user.Role;
 
 import java.time.LocalDate;
 
-@Entity
-@Table(name = "users")
-public class User {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long userID;
-
+public class UserResponseDTO {
+    private Long userId;
     private String name;
     private LocalDate dateOfBirth;
-
-    @Enumerated(EnumType.STRING)
     private Role role;
-
     private String email;
     private String password;
 
-    public User() {}
+    public UserResponseDTO(){}
 
-    public User(Long userID, String name, LocalDate dateOfBirth,
-                Role role, String email, String password){
-        this.userID = userID;
-        this.name= name;
+    public UserResponseDTO(Long userId, String name, LocalDate dateOfBirth, Role role, String email, String password) {
+        this.userId = userId;
+        this.name = name;
         this.dateOfBirth = dateOfBirth;
         this.role = role;
         this.email = email;
         this.password = password;
     }
 
-    public Long getUserID() {
-        return userID;
+    public Long getUserId() {
+        return userId;
     }
 
-    public void setUserID(Long userID) {
-        this.userID = userID;
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
     public String getName() {
-        return name ;
+        return name;
     }
 
     public void setName(String name) {
@@ -56,20 +47,20 @@ public class User {
         this.dateOfBirth = dateOfBirth;
     }
 
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
     public Role getRole() {
         return role;
     }
 
     public void setRole(Role role) {
         this.role = role;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getPassword() {

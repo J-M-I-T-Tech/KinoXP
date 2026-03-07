@@ -9,7 +9,7 @@ import java.util.List;
 public class MovieService {
 
     private static final List<Movie> movies = List.of(
-        new Movie(1,
+        new Movie(1L,
                 "Titanic",
                 2023,
                 Genre.ROMANCE,
@@ -17,7 +17,7 @@ public class MovieService {
                 Format.THREE_DIMENSIONAL,
                 AgeLimit.ALL,
                 Language.DANISH),
-            new Movie(2,
+            new Movie(2L,
                     "Titanic2",
                     2024,
                     Genre.ROMANCE,
