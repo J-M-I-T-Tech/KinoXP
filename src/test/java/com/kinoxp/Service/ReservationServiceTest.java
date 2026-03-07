@@ -16,6 +16,26 @@ public class ReservationServiceTest {
     void setUp(){
     reservationService = new ReservationService();
 }
+@Test
+void calculatePrice_ShouldGive10ProcentDiscount_WhenMoreThan10Tickets(){
+    // US: 3.2 Som kunde vil jeg have mængderabat, hvis jeg reserverer mere end 10 billetter.
+    //Arrange
+Movie movie = new Movie("Titanic", 195, AgeLimit.ELEVEN_PLUS);
+double standardPrice = 130.0;
+double langFilmFee = 20.0;
+double rowFee = 25.0;
+double discount = 0.10;
+int numberOfTickets = 11;
+
+//act
+    double actualPrice = reservationService.calculateWithDiscount(movie,standardPrice,langFilmFee,rowFee,discount,numberOfTickets);
+
+
+//Assert
+assertEquals(1732.5,actualPrice,"prisen på billetter når man køber mere end 10 billeter, discount på 10%");
+
+}
+
 
 @Test
     void calculatePrice_AddFee_WhenMovieIsOver170Minutes(){
