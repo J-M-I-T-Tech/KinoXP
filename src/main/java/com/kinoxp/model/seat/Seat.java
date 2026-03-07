@@ -25,6 +25,11 @@ public class Seat {
         this.rowNumber = rowNumber;
     }
 
+    public Seat(int seatNumber, int rowNumber){
+        this.seatNumber = seatNumber;
+        this.rowNumber = rowNumber;
+    }
+
     public Long getSeatId() {
         return seatId;
     }
