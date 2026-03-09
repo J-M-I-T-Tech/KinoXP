@@ -27,30 +27,29 @@ public class ReservationController {
         return new ResponseEntity<>(reservations, HttpStatus.OK);
     }
 
-//    @GetMapping("/{id}")
-//    public ResponseEntity<ReservationDTO> getReservation(@PathVariable int id) {
-//        Reservation reservation = reservationService.getReservationById(id);
-//
-//        if (reservation != null) {
-//            return ResponseEntity.notFound().build();
-//        }
-//
-//
-//    }
-
-
-
-//    @GetMapping()
-//    public List<Reservation> getAllReservations() {
-//        return reservationService.getAllReservation();
-//    }
-
     //TODO lav metoden for når opretter en reservation.
     @PostMapping("/create")
     public ResponseEntity<ReservationDTO> createReservation(@RequestBody ReservationDTO reservationDTO){
-    ReservationDTO savedReservation = reservationService.createReservation(reservationDTO);
-    return new ResponseEntity<>(savedReservation, HttpStatus.CREATED);
+        ReservationDTO savedReservation = reservationService.createReservation(reservationDTO);
+        return new ResponseEntity<>(savedReservation, HttpStatus.CREATED);
     }
+
+
+
+    //
+    @GetMapping("/{reservationId}")
+    public ResponseEntity<ReservationDTO> getReservation(@PathVariable Long reservationId) {
+        Reservation reservation = reservationService.getReservationById(reservationId);
+
+        if (reservation == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(reservationService.convertToDTO(reservation));
+    }
+
+
+
 
 
     // TODO: lav metoden der beregner prisen.
@@ -60,21 +59,17 @@ public class ReservationController {
 //    }
 
 
-//    //TODO: Hent reservation via id
-//    @GetMapping("{id]")
-//    public Reservation getReservationById(@PathVariable int id) {
-//
-//    }
-
-
-    // TODO: Hent reservation
-//    @GetMapping("{id}")
-
     //TODO: Update
 //    @PutMapping
 
+
+
     // TODO: Slet reservation
-//    @DeleteMapping
+    @DeleteMapping("/{reservationId}")
+    public ResponseEntity<Void> deleteReservation(@PathVariable Long reservationId) {
+        reservationService.deleteReservation(reservationId);
+        return ResponseEntity.noContent().build();
+    }
 
 
 

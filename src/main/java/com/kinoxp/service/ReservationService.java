@@ -115,7 +115,7 @@ public class ReservationService {
 
     }
 
-    private ReservationDTO convertToDTO(Reservation reservation) {
+   public  ReservationDTO convertToDTO(Reservation reservation) {
         ReservationDTO dto = new ReservationDTO();
         dto.setUserId(reservation.getUser().getUserID());
         dto.setShowingId(reservation.getShowing().getShowingId());
@@ -130,5 +130,19 @@ public class ReservationService {
         return reservations.stream()
                 .map(this::convertToDTO)
                 .toList();
+    }
+
+    // finde en reservation : specifik by id.
+    public Reservation getReservationById(Long id) {
+        return reservationRepository.findById(id)
+                .orElse(null);
+    }
+
+    //sletter en reservation by reservationId
+    public void deleteReservation(Long reservationId) {
+        if (!reservationRepository.existsById(reservationId)) {
+            throw new RuntimeException("Reservation not found");
+        }
+        reservationRepository.deleteById(reservationId);
     }
 }
