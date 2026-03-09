@@ -26,7 +26,7 @@ public class MovieController {
     }
 
     @GetMapping("/movies/{movieId}")
-    public ResponseEntity<MovieResponse> getMovieById(@PathVariable int movieId) {
+    public ResponseEntity<MovieResponse> getMovieById(@PathVariable Long movieId) {
         MovieResponse movie = movieService.getMovieById(movieId);
         if (movie == null) return ResponseEntity.notFound().build();
 
@@ -41,7 +41,7 @@ public class MovieController {
     }
 
     @PutMapping("/movies/{movieId}")
-    public ResponseEntity<MovieResponse> updateMovie(@PathVariable int movieId, @Valid @RequestBody MovieRequest request) {
+    public ResponseEntity<MovieResponse> updateMovie(@PathVariable Long movieId, @Valid @RequestBody MovieRequest request) {
         MovieResponse updatedMovie = movieService.updateMovie(movieId, request);
         if (updatedMovie == null) return ResponseEntity.notFound().build();
 
@@ -49,7 +49,7 @@ public class MovieController {
     }
 
     @DeleteMapping("/movies/{movieId}")
-    public ResponseEntity<Void> deleteMovie(@PathVariable int movieId) {
+    public ResponseEntity<Void> deleteMovie(@PathVariable Long movieId) {
         boolean deleted = movieService.deleteMovieById(movieId);
         if (!deleted) return ResponseEntity.notFound().build();
 

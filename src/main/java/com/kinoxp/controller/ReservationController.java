@@ -20,7 +20,6 @@ public class ReservationController {
         this.reservationService = reservationService;
     }
 
-
     @GetMapping("/all")
     public ResponseEntity<List<ReservationDTO>> getAllReservations() {
         List<ReservationDTO> reservations = reservationService.getAllReservations();
@@ -34,23 +33,13 @@ public class ReservationController {
         return new ResponseEntity<>(savedReservation, HttpStatus.CREATED);
     }
 
-
-
-    //
     @GetMapping("/{reservationId}")
     public ResponseEntity<ReservationDTO> getReservation(@PathVariable Long reservationId) {
         Reservation reservation = reservationService.getReservationById(reservationId);
-
-        if (reservation == null) {
-            return ResponseEntity.notFound().build();
-        }
+        if (reservation == null) return ResponseEntity.notFound().build();
 
         return ResponseEntity.ok(reservationService.convertToDTO(reservation));
     }
-
-
-
-
 
     // TODO: lav metoden der beregner prisen.
 //    @PostMapping("/price")
@@ -58,11 +47,8 @@ public class ReservationController {
 //
 //    }
 
-
     //TODO: Update
 //    @PutMapping
-
-
 
     // TODO: Slet reservation
     @DeleteMapping("/{reservationId}")
@@ -70,7 +56,4 @@ public class ReservationController {
         reservationService.deleteReservation(reservationId);
         return ResponseEntity.noContent().build();
     }
-
-
-
 }

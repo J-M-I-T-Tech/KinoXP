@@ -42,8 +42,6 @@ public class ReservationService {
         }
         // her skal returnerer den normalprisen.
         return standardPrice;
-
-
     }
 
     //US:3.7
@@ -72,9 +70,9 @@ public class ReservationService {
 //        return totalPrice;
 //    }
 
-
-//    US:3.2 Som kunde vil jeg have mængderabat, hvis jeg reserverer mere end 10 billetter.
+    //    US:3.2 Som kunde vil jeg have mængderabat, hvis jeg reserverer mere end 10 billetter.
     private static final double RABAT_HVIS_MERE_END_10 = 0.07;
+
     public double calculateWithDiscount(Movie movie, double standardPrice, double longFilmFee, double discount, int numberOfTickets) {
         //Pris pr billet
         double pricePerTicket = standardPrice;
@@ -92,36 +90,35 @@ public class ReservationService {
     }
 
     public ReservationDTO createReservation(ReservationDTO reservationDTO) {
+        User user = userRepository.findById(reservationDTO.userId())
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
-        User user = userRepository.findById(reservationDTO.getUserId())
-                .orElseThrow(() -> new RuntimeException("user not found"));
-
-        Showing showing = showingRepository.findById(reservationDTO.getShowingId())
+        Showing showing = showingRepository.findById(reservationDTO.showingId())
                 .orElseThrow(() -> new RuntimeException("Showing not found"));
-
 
         // laver tabeller
         Reservation reservation = new Reservation();
         reservation.setUser(user);
         reservation.setShowing(showing);
-        reservation.setRowNumber(reservationDTO.getRowNumber());
-        reservation.setTotalPrice(reservationDTO.getTotalPrice());
+        reservation.setRowNumber(reservationDTO.rowNumber());
+        reservation.setTotalPrice(reservationDTO.totalPrice());
         reservation.setCreated(LocalDateTime.now());
         reservation.setStatus(Status.CONFIRMED);
 
         Reservation savedReservation = reservationRepository.save(reservation);
 
         return convertToDTO(savedReservation);
-
     }
 
-   public  ReservationDTO convertToDTO(Reservation reservation) {
-        ReservationDTO dto = new ReservationDTO();
-        dto.setUserId(reservation.getUser().getUserID());
-        dto.setShowingId(reservation.getShowing().getShowingId());
-        dto.setRowNumber(reservation.getRowNumber());
-        dto.setTotalPrice(reservation.getTotalPrice());
-        return dto;
+    public ReservationDTO convertToDTO(Reservation reservation) {
+        return new ReservationDTO(
+                reservation.getShowing().getMovie().getTitle(),
+                reservation.getTickets().size(),
+                reservation.getTotalPrice(),
+                reservation.getRowNumber(),
+                reservation.getUser().getUserId(),
+                reservation.getShowing().getShowingId()
+        );
     }
 
     // alle reservationer

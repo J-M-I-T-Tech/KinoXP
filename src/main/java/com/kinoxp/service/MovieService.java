@@ -24,7 +24,7 @@ public class MovieService {
                 .toList();
     }
 
-    public MovieResponse getMovieById(int id) {
+    public MovieResponse getMovieById(Long id) {
         return movieRepository.findById(id)
                 .map(this::toResponse)
                 .orElse(null);
@@ -37,7 +37,7 @@ public class MovieService {
         return toResponse(saved);
     }
 
-    public MovieResponse updateMovie(int id, MovieRequest request) {
+    public MovieResponse updateMovie(Long id, MovieRequest request) {
         Movie existing = movieRepository.findById(id).orElse(null);
         if (existing == null) {
             return null;
@@ -48,7 +48,7 @@ public class MovieService {
         return toResponse(saved);
     }
 
-    public boolean deleteMovieById(int id) {
+    public boolean deleteMovieById(Long id) {
         if (!movieRepository.existsById(id)) {
             return false;
         }
