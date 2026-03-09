@@ -1,8 +1,6 @@
 package com.kinoxp.model.reservation;
 
 import com.kinoxp.model.showing.Showing;
-import com.kinoxp.model.ticket.Ticket;
-import com.kinoxp.model.user.User;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -16,39 +14,42 @@ public class Reservation {
     private Long reservationId;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
-
-    @ManyToOne
     @JoinColumn(name = "showing_id")
     private Showing showing;
 
-    private LocalDateTime created;
+    private String customerName;
+
+    private LocalDateTime createdAt;
 
     private double totalPrice;
 
     @Enumerated(EnumType.STRING)
-    private BookingState bookingState;
+    private BookingStatus bookingStatus;
 
     @Enumerated(EnumType.STRING)
-    private PaymentState paymentState;
+    private PaymentStatus paymentStatus;
 
     @OneToMany(mappedBy = "reservation", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Ticket> tickets;
-
-    public Reservation(Long reservationId, User user, Showing showing, LocalDateTime created,
-                       double totalPrice, BookingState bookingState, PaymentState paymentState, List<Ticket> tickets) {
-        this.reservationId = reservationId;
-        this.user = user;
-        this.showing = showing;
-        this.created = created;
-        this.totalPrice = totalPrice;
-        this.bookingState = bookingState;
-        this.paymentState = paymentState;
-        this.tickets = new ArrayList<>(tickets);
-    }
+    private List<ReservationSeat> reservedSeats = new ArrayList<>();
 
     public Reservation() {}
+
+    public Reservation(Long reservationId,
+                       Showing showing,
+                       String customerName,
+                       LocalDateTime createdAt,
+                       double totalPrice,
+                       BookingStatus bookingStatus,
+                       PaymentStatus paymentStatus) {
+        this.reservationId = reservationId;
+        this.showing = showing;
+        this.customerName = customerName;
+        this.createdAt = createdAt;
+        this.totalPrice = totalPrice;
+        this.bookingStatus = bookingStatus;
+        this.paymentStatus = paymentStatus;
+    }
+
 
     public Long getReservationId() {
         return reservationId;
@@ -56,14 +57,6 @@ public class Reservation {
 
     public void setReservationId(Long reservationId) {
         this.reservationId = reservationId;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
     }
 
     public Showing getShowing() {
@@ -74,12 +67,20 @@ public class Reservation {
         this.showing = showing;
     }
 
-    public LocalDateTime getCreated() {
-        return created;
+    public String getCustomerName() {
+        return customerName;
     }
 
-    public void setCreated(LocalDateTime created) {
-        this.created = created;
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 
     public double getTotalPrice() {
@@ -90,27 +91,33 @@ public class Reservation {
         this.totalPrice = totalPrice;
     }
 
-    public BookingState getBookingState() {
-        return bookingState;
+    public BookingStatus getBookingStatus() {
+        return bookingStatus;
     }
 
-    public void setBookingState(BookingState bookingState) {
-        this.bookingState = bookingState;
+    public void setBookingStatus(BookingStatus bookingStatus) {
+        this.bookingStatus = bookingStatus;
     }
 
-    public PaymentState getPaymentState() {
-        return paymentState;
+    public PaymentStatus getPaymentStatus() {
+        return paymentStatus;
     }
 
-    public void setPaymentState(PaymentState paymentState) {
-        this.paymentState = paymentState;
+    public void setPaymentStatus(PaymentStatus paymentStatus) {
+        this.paymentStatus = paymentStatus;
     }
 
-    public List<Ticket> getTickets() {
-        return tickets;
+    public List<ReservationSeat> getReservedSeats() {
+        return reservedSeats;
     }
 
-    public void setTickets(List<Ticket> tickets) {
-        this.tickets = new ArrayList<>(tickets);
+    public void addReservedSeat(ReservationSeat reservationSeat) {
+        reservedSeats.add(reservationSeat);
+        reservationSeat.setReservation(this);
+    }
+
+    public void removeReservedSeat(ReservationSeat reservationSeat) {
+        reservedSeats.remove(reservationSeat);
+        reservationSeat.setReservation(null);
     }
 }
