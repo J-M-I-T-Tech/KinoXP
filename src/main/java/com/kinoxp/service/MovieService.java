@@ -2,11 +2,14 @@ package com.kinoxp.service;
 
 import com.kinoxp.dto.MovieRequest;
 import com.kinoxp.dto.MovieResponse;
+import com.kinoxp.model.movie.Genre;
+import com.kinoxp.model.movie.Language;
 import com.kinoxp.model.movie.Movie;
 import com.kinoxp.repository.MovieRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class MovieService {
@@ -24,10 +27,9 @@ public class MovieService {
                 .toList();
     }
 
-    public MovieResponse getMovieById(Long id) {
+    public Optional<MovieResponse> getMovieById(Long id) {
         return movieRepository.findById(id)
-                .map(this::toResponse)
-                .orElse(null);
+                .map(this::toResponse);
     }
 
     public MovieResponse createMovie(MovieRequest request) {
@@ -37,21 +39,18 @@ public class MovieService {
         return toResponse(saved);
     }
 
-    public MovieResponse updateMovie(Long id, MovieRequest request) {
-        Movie existing = movieRepository.findById(id).orElse(null);
-        if (existing == null) {
-            return null;
-        }
-
-        applyRequest(existing, request);
-        Movie saved = movieRepository.save(existing);
-        return toResponse(saved);
+    public Optional<MovieResponse> updateMovie(Long id, MovieRequest request) {
+        return movieRepository.findById(id)
+                .map(existing -> {
+                    applyRequest(existing, request);
+                    Movie saved = movieRepository.save(existing);
+                    return toResponse(saved);
+                });
     }
 
     public boolean deleteMovieById(Long id) {
-        if (!movieRepository.existsById(id)) {
-            return false;
-        }
+        if (!movieRepository.existsById(id)) return false;
+
         movieRepository.deleteById(id);
         return true;
     }
