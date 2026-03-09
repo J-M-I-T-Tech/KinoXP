@@ -1,6 +1,6 @@
 package com.kinoxp.model.reservation;
 
-public enum PaymentStatus {
+public enum PaymentState {
     AWAITING,
     PAID,
     REFUNDED,

@@ -23,25 +23,28 @@ public class Reservation {
     @JoinColumn(name = "showing_id")
     private Showing showing;
 
-    private int rowNumber;
     private LocalDateTime created;
+
     private double totalPrice;
 
     @Enumerated(EnumType.STRING)
-    private Status status;
+    private BookingState bookingState;
+
+    @Enumerated(EnumType.STRING)
+    private PaymentState paymentState;
 
     @OneToMany(mappedBy = "reservation", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Ticket> tickets;
 
-    public Reservation(Long reservationId, User user, Showing showing, int rowNumber,
-                       LocalDateTime created, double totalPrice, Status status, List<Ticket> tickets) {
+    public Reservation(Long reservationId, User user, Showing showing, LocalDateTime created,
+                       double totalPrice, BookingState bookingState, PaymentState paymentState, List<Ticket> tickets) {
         this.reservationId = reservationId;
         this.user = user;
         this.showing = showing;
-        this.rowNumber = rowNumber;
         this.created = created;
         this.totalPrice = totalPrice;
-        this.status = status;
+        this.bookingState = bookingState;
+        this.paymentState = paymentState;
         this.tickets = new ArrayList<>(tickets);
     }
 
@@ -71,14 +74,6 @@ public class Reservation {
         this.showing = showing;
     }
 
-    public int getRowNumber() {
-        return rowNumber;
-    }
-
-    public void setRowNumber(int rowNumber) {
-        this.rowNumber = rowNumber;
-    }
-
     public LocalDateTime getCreated() {
         return created;
     }
@@ -95,12 +90,20 @@ public class Reservation {
         this.totalPrice = totalPrice;
     }
 
-    public Status getStatus() {
-        return status;
+    public BookingState getBookingState() {
+        return bookingState;
     }
 
-    public void setStatus(Status status) {
-        this.status = status;
+    public void setBookingState(BookingState bookingState) {
+        this.bookingState = bookingState;
+    }
+
+    public PaymentState getPaymentState() {
+        return paymentState;
+    }
+
+    public void setPaymentState(PaymentState paymentState) {
+        this.paymentState = paymentState;
     }
 
     public List<Ticket> getTickets() {

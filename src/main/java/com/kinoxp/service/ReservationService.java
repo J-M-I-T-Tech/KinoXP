@@ -3,7 +3,7 @@ package com.kinoxp.service;
 import com.kinoxp.dto.ReservationDTO;
 import com.kinoxp.model.movie.Movie;
 import com.kinoxp.model.reservation.Reservation;
-import com.kinoxp.model.reservation.Status;
+import com.kinoxp.model.reservation.BookingState;
 import com.kinoxp.model.seat.Seat;
 import com.kinoxp.model.showing.Showing;
 import com.kinoxp.model.user.User;
@@ -26,7 +26,6 @@ public class ReservationService {
         this.reservationRepository = reservationRepository;
         this.userRepository = userRepository;
         this.showingRepository = showingRepository;
-
     }
 
     //Henter alle reservationer
@@ -100,10 +99,9 @@ public class ReservationService {
         Reservation reservation = new Reservation();
         reservation.setUser(user);
         reservation.setShowing(showing);
-        reservation.setRowNumber(reservationDTO.rowNumber());
         reservation.setTotalPrice(reservationDTO.totalPrice());
         reservation.setCreated(LocalDateTime.now());
-        reservation.setStatus(Status.CONFIRMED);
+        reservation.setBookingState(BookingState.CONFIRMED);
 
         Reservation savedReservation = reservationRepository.save(reservation);
 
@@ -115,7 +113,6 @@ public class ReservationService {
                 reservation.getShowing().getMovie().getTitle(),
                 reservation.getTickets().size(),
                 reservation.getTotalPrice(),
-                reservation.getRowNumber(),
                 reservation.getUser().getUserId(),
                 reservation.getShowing().getShowingId()
         );
