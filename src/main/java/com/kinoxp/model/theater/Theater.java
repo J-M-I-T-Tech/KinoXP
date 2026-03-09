@@ -27,7 +27,7 @@ public class Theater {
         this.seats = new ArrayList<>(seats);
     }
 
-    public Theater(){}
+    public Theater() {}
 
     public Long getTheaterId() {
         return theaterId;

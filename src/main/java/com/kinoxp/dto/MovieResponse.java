@@ -6,7 +6,7 @@ import com.kinoxp.model.movie.Genre;
 import com.kinoxp.model.movie.Language;
 
 public record MovieResponse(
-        int movieId,
+        Long movieId,
         String title,
         int releaseYear,
         Genre genre,

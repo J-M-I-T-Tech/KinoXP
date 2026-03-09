@@ -10,7 +10,7 @@ import jakarta.validation.constraints.NotNull;
 public class Movie {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int movieId;
+    private Long movieId;
 
     @NotBlank
     private String title;
@@ -40,7 +40,7 @@ public class Movie {
 
     public Movie() {}
 
-    public Movie(int movieId, String title, int releaseYear, Genre genre,
+    public Movie(Long movieId, String title, int releaseYear, Genre genre,
                  int durationInMinutes, Format format, AgeLimit ageLimit, Language language) {
         this.movieId = movieId;
         this.title = title;
@@ -58,11 +58,11 @@ public class Movie {
         this.ageLimit = ageLimit;
     }
 
-    public int getMovieId() {
+    public Long getMovieId() {
         return movieId;
     }
 
-    public void setMovieId(int movieId) {
+    public void setMovieId(Long movieId) {
         this.movieId = movieId;
     }
 

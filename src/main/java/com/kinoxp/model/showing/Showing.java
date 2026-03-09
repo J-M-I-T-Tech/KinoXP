@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 public class Showing {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int showingId;
+    private Long showingId;
 
     @ManyToOne
     @JoinColumn(name = "movie_id")
@@ -25,7 +25,7 @@ public class Showing {
 
     public Showing() {}
 
-    public Showing(int showingId, Movie movie, Theater theater,
+    public Showing(Long showingId, Movie movie, Theater theater,
                    LocalDateTime startTime, LocalDateTime endTime) {
         this.showingId = showingId;
         this.movie = movie;
@@ -34,11 +34,11 @@ public class Showing {
         this.endTime = endTime;
     }
 
-    public int getShowingId() {
+    public Long getShowingId() {
         return showingId;
     }
 
-    public void setShowingId(int showingId) {
+    public void setShowingId(Long showingId) {
         this.showingId = showingId;
     }
 
