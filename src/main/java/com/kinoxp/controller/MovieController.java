@@ -2,6 +2,8 @@ package com.kinoxp.controller;
 
 import com.kinoxp.dto.MovieRequest;
 import com.kinoxp.dto.MovieResponse;
+import com.kinoxp.model.movie.Genre;
+import com.kinoxp.model.movie.Language;
 import com.kinoxp.service.MovieService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +28,18 @@ public class MovieController {
     }
 
     @GetMapping("/movies/{movieId}")
+    public ResponseEntity<List<MovieResponse>> getMoviesByGenre(@PathVariable Genre genre) {
+        return ResponseEntity.ok(movieService.getMoviesByGenre(genre));
+    }
+
+    public ResponseEntity<List<MovieResponse>> getMoviesByLanguage(@PathVariable Language language) {
+        return ResponseEntity.ok(movieService.getMoviesByLanguage(language));
+    }
+
+    public ResponseEntity<List<MovieResponse>> getMoviesByTitle(@RequestParam String title) {
+        return ResponseEntity.ok(movieService.getMoviesByTitle(title));
+    }
+
     public ResponseEntity<MovieResponse> getMovieById(@PathVariable Long movieId) {
         return movieService.getMovieById(movieId)
                 .map(ResponseEntity::ok)

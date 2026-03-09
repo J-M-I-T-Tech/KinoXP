@@ -32,6 +32,27 @@ public class MovieService {
                 .map(this::toResponse);
     }
 
+    public List<MovieResponse> getMoviesByGenre(Genre genre) {
+        return movieRepository.findByGenre(genre)
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    public List<MovieResponse> getMoviesByLanguage(Language language) {
+        return movieRepository.findByLanguage(language)
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    public List<MovieResponse> getMoviesByTitle(String title) {
+        return movieRepository.findByTitleContainingIgnoreCase(title)
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
     public MovieResponse createMovie(MovieRequest request) {
         Movie movie = new Movie();
         applyRequest(movie, request);
