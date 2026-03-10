@@ -1,5 +1,5 @@
 package com.kinoxp.service;
-
+import com.kinoxp.model.movie.Movie;
 import com.kinoxp.model.reservation.*;
 import com.kinoxp.model.seat.Seat;
 import com.kinoxp.model.showing.Showing;
@@ -9,7 +9,7 @@ import com.kinoxp.repository.SeatRepository;
 import com.kinoxp.repository.ShowingRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
-
+import com.kinoxp.model.reservation.PriceRequest;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -83,12 +83,12 @@ public class ReservationService {
         reservation.setBookingStatus(BookingStatus.CONFIRMED);
         reservation.setPaymentStatus(PaymentStatus.AWAITING);
 
-        reservation.setTotalPrice(DEFAULT_TICKET_PRICE * seats.size());
+        reservation.setTotalPrice(STANDARD_PRICE * seats.size());
 
         for (Seat seat : seats) {
             ReservationSeat reservationSeat = new ReservationSeat();
             reservationSeat.setSeat(seat);
-            reservationSeat.setPrice(DEFAULT_TICKET_PRICE);
+            reservationSeat.setPrice(STANDARD_PRICE);
             reservation.addReservedSeat(reservationSeat);
         }
 
