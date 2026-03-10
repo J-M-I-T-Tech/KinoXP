@@ -17,18 +17,16 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    private String email;
     private String password;
 
     public User() {}
 
     public User(Long userId, String name, LocalDate dateOfBirth,
-                Role role, String email, String password){
+                Role role, String password){
         this.userId = userId;
         this.name = name;
         this.dateOfBirth = dateOfBirth;
         this.role = role;
-        this.email = email;
         this.password = password;
     }
 
@@ -54,14 +52,6 @@ public class User {
 
     public void setDateOfBirth(LocalDate dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
     }
 
     public Role getRole() {

@@ -13,25 +13,33 @@ public class Showing {
     private Long showingId;
 
     @ManyToOne
-    @JoinColumn(name = "movie_id")
+    @JoinColumn(name = "movie_id", nullable = false)
     private Movie movie;
 
     @ManyToOne
-    @JoinColumn(name = "theater_id")
+    @JoinColumn(name = "theater_id", nullable = false)
     private Theater theater;
 
     private LocalDateTime startTime;
     private LocalDateTime endTime;
 
+    @Enumerated(EnumType.STRING)
+    private ShowingStatus showingStatus;
+
     public Showing() {}
 
-    public Showing(Long showingId, Movie movie, Theater theater,
-                   LocalDateTime startTime, LocalDateTime endTime) {
+    public Showing(Long showingId,
+                   Movie movie,
+                   Theater theater,
+                   LocalDateTime startTime,
+                   LocalDateTime endTime,
+                   ShowingStatus showingStatus) {
         this.showingId = showingId;
         this.movie = movie;
         this.theater = theater;
         this.startTime = startTime;
         this.endTime = endTime;
+        this.showingStatus = showingStatus;
     }
 
     public Long getShowingId() {
@@ -72,5 +80,13 @@ public class Showing {
 
     public void setEndTime(LocalDateTime endTime) {
         this.endTime = endTime;
+    }
+
+    public ShowingStatus getShowingStatus() {
+        return showingStatus;
+    }
+
+    public void setShowingStatus(ShowingStatus showingStatus) {
+        this.showingStatus = showingStatus;
     }
 }

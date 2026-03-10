@@ -1,12 +1,11 @@
 package com.kinoxp.service;
 
-import com.kinoxp.dto.MovieRequest;
-import com.kinoxp.dto.MovieResponse;
-import com.kinoxp.model.movie.Movie;
+import com.kinoxp.model.movie.*;
 import com.kinoxp.repository.MovieRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class MovieService {
@@ -24,10 +23,30 @@ public class MovieService {
                 .toList();
     }
 
-    public MovieResponse getMovieById(int id) {
+    public Optional<MovieResponse> getMovieById(Long id) {
         return movieRepository.findById(id)
+                .map(this::toResponse);
+    }
+
+    public List<MovieResponse> getMoviesByGenre(Genre genre) {
+        return movieRepository.findByGenre(genre)
+                .stream()
                 .map(this::toResponse)
-                .orElse(null);
+                .toList();
+    }
+
+    public List<MovieResponse> getMoviesByLanguage(Language language) {
+        return movieRepository.findByLanguage(language)
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    public List<MovieResponse> getMoviesByTitle(String title) {
+        return movieRepository.findByTitleContainingIgnoreCase(title)
+                .stream()
+                .map(this::toResponse)
+                .toList();
     }
 
     public MovieResponse createMovie(MovieRequest request) {
@@ -37,21 +56,18 @@ public class MovieService {
         return toResponse(saved);
     }
 
-    public MovieResponse updateMovie(int id, MovieRequest request) {
-        Movie existing = movieRepository.findById(id).orElse(null);
-        if (existing == null) {
-            return null;
-        }
-
-        applyRequest(existing, request);
-        Movie saved = movieRepository.save(existing);
-        return toResponse(saved);
+    public Optional<MovieResponse> updateMovie(Long id, MovieRequest request) {
+        return movieRepository.findById(id)
+                .map(existing -> {
+                    applyRequest(existing, request);
+                    Movie saved = movieRepository.save(existing);
+                    return toResponse(saved);
+                });
     }
 
-    public boolean deleteMovieById(int id) {
-        if (!movieRepository.existsById(id)) {
-            return false;
-        }
+    public boolean deleteMovieById(Long id) {
+        if (!movieRepository.existsById(id)) return false;
+
         movieRepository.deleteById(id);
         return true;
     }

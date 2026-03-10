@@ -1,9 +1,5 @@
-package com.kinoxp.dto;
+package com.kinoxp.model.movie;
 
-import com.kinoxp.model.movie.AgeLimit;
-import com.kinoxp.model.movie.Format;
-import com.kinoxp.model.movie.Genre;
-import com.kinoxp.model.movie.Language;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;

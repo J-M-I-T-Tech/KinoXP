@@ -1,40 +1,40 @@
-package com.kinoxp.model.ticket;
+package com.kinoxp.model.reservation;
 
-import com.kinoxp.model.reservation.Reservation;
 import com.kinoxp.model.seat.Seat;
 import jakarta.persistence.*;
 
 @Entity
-public class Ticket {
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"reservation_id", "seat_id"}))
+public class ReservationSeat {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long ticketId;
+    private Long reservationSeatId;
 
     @ManyToOne
-    @JoinColumn(name = "reservation_id")
+    @JoinColumn(name = "reservation_id", nullable = false)
     private Reservation reservation;
 
     @ManyToOne
-    @JoinColumn(name = "seat_id")
+    @JoinColumn(name = "seat_id", nullable = false)
     private Seat seat;
 
     private double price;
 
-    public Ticket() {}
+    public ReservationSeat() {}
 
-    public Ticket(Long ticketId, Reservation reservation, Seat seat, double price) {
-        this.ticketId = ticketId;
+    public ReservationSeat(Long reservationSeatId, Reservation reservation, Seat seat, double price) {
+        this.reservationSeatId = reservationSeatId;
         this.reservation = reservation;
         this.seat = seat;
         this.price = price;
     }
 
-    public Long getTicketId() {
-        return ticketId;
+    public Long getReservationSeatId() {
+        return reservationSeatId;
     }
 
-    public void setTicketId(Long ticketId) {
-        this.ticketId = ticketId;
+    public void setReservationSeatId(Long reservationSeatId) {
+        this.reservationSeatId = reservationSeatId;
     }
 
     public Reservation getReservation() {

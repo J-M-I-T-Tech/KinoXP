@@ -1,7 +1,6 @@
 package com.kinoxp.controller;
 
-import com.kinoxp.dto.MovieRequest;
-import com.kinoxp.dto.MovieResponse;
+import com.kinoxp.model.movie.*;
 import com.kinoxp.service.MovieService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -11,7 +10,7 @@ import java.net.URI;
 import java.util.List;
 
 @RestController
-@RequestMapping("kino")
+@RequestMapping("/kino/movies")
 public class MovieController {
 
     private final MovieService movieService;
@@ -20,36 +19,49 @@ public class MovieController {
         this.movieService = movieService;
     }
 
-    @GetMapping("/movies")
+    @GetMapping
     public ResponseEntity<List<MovieResponse>> getAllMovies() {
         return ResponseEntity.ok(movieService.getAllMovies());
     }
 
-    @GetMapping("/movies/{movieId}")
-    public ResponseEntity<MovieResponse> getMovieById(@PathVariable int movieId) {
-        MovieResponse movie = movieService.getMovieById(movieId);
-        if (movie == null) return ResponseEntity.notFound().build();
-
-        return ResponseEntity.ok(movie);
+    @GetMapping("/genre/{genre}")
+    public ResponseEntity<List<MovieResponse>> getMoviesByGenre(@PathVariable Genre genre) {
+        return ResponseEntity.ok(movieService.getMoviesByGenre(genre));
     }
 
-    @PostMapping("/movies")
+    @GetMapping("/language/{language}")
+    public ResponseEntity<List<MovieResponse>> getMoviesByLanguage(@PathVariable Language language) {
+        return ResponseEntity.ok(movieService.getMoviesByLanguage(language));
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<MovieResponse>> getMoviesByTitle(@RequestParam String title) {
+        return ResponseEntity.ok(movieService.getMoviesByTitle(title));
+    }
+
+    @GetMapping("/{movieId}")
+    public ResponseEntity<MovieResponse> getMovieById(@PathVariable Long movieId) {
+        return movieService.getMovieById(movieId)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @PostMapping
     public ResponseEntity<MovieResponse> createMovie(@Valid @RequestBody MovieRequest request) {
         MovieResponse createdMovie = movieService.createMovie(request);
         URI location = URI.create("/kino/movies/" + createdMovie.movieId());
         return ResponseEntity.created(location).body(createdMovie);
     }
 
-    @PutMapping("/movies/{movieId}")
-    public ResponseEntity<MovieResponse> updateMovie(@PathVariable int movieId, @Valid @RequestBody MovieRequest request) {
-        MovieResponse updatedMovie = movieService.updateMovie(movieId, request);
-        if (updatedMovie == null) return ResponseEntity.notFound().build();
-
-        return ResponseEntity.ok(updatedMovie);
+    @PutMapping("/{movieId}")
+    public ResponseEntity<MovieResponse> updateMovie(@PathVariable Long movieId, @Valid @RequestBody MovieRequest request) {
+        return movieService.updateMovie(movieId, request)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @DeleteMapping("/movies/{movieId}")
-    public ResponseEntity<Void> deleteMovie(@PathVariable int movieId) {
+    @DeleteMapping("/{movieId}")
+    public ResponseEntity<Void> deleteMovie(@PathVariable Long movieId) {
         boolean deleted = movieService.deleteMovieById(movieId);
         if (!deleted) return ResponseEntity.notFound().build();
 

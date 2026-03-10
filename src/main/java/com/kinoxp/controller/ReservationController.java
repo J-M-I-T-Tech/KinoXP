@@ -1,17 +1,17 @@
 package com.kinoxp.controller;
 
-import com.kinoxp.dto.ReservationDTO;
-import com.kinoxp.model.reservation.Reservation;
+import com.kinoxp.model.reservation.ReservationRequest;
+import com.kinoxp.model.reservation.ReservationResponse;
 import com.kinoxp.service.ReservationService;
-import org.springframework.http.HttpStatus;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.List;
 
-
 @RestController
-@RequestMapping("api/reservations")
+@RequestMapping("kino/reservations")
 public class ReservationController {
 
     private final ReservationService reservationService;
@@ -20,57 +20,30 @@ public class ReservationController {
         this.reservationService = reservationService;
     }
 
-
-    @GetMapping("/all")
-    public ResponseEntity<List<ReservationDTO>> getAllReservations() {
-        List<ReservationDTO> reservations = reservationService.getAllReservations();
-        return new ResponseEntity<>(reservations, HttpStatus.OK);
+    @GetMapping
+    public ResponseEntity<List<ReservationResponse>> getAllReservations() {
+        return ResponseEntity.ok(reservationService.getAllReservations());
     }
 
-    //TODO lav metoden for når opretter en reservation.
-    @PostMapping("/create")
-    public ResponseEntity<ReservationDTO> createReservation(@RequestBody ReservationDTO reservationDTO){
-        ReservationDTO savedReservation = reservationService.createReservation(reservationDTO);
-        return new ResponseEntity<>(savedReservation, HttpStatus.CREATED);
+    @PostMapping
+    public ResponseEntity<ReservationResponse> createReservation(@Valid @RequestBody ReservationRequest request) {
+        ReservationResponse createdReservation = reservationService.createReservation(request);
+        URI location = URI.create("/api/reservations/" + createdReservation.reservationId());
+        return ResponseEntity.created(location).body(createdReservation);
     }
 
-
-
-    //
     @GetMapping("/{reservationId}")
-    public ResponseEntity<ReservationDTO> getReservation(@PathVariable Long reservationId) {
-        Reservation reservation = reservationService.getReservationById(reservationId);
-
-        if (reservation == null) {
-            return ResponseEntity.notFound().build();
-        }
-
-        return ResponseEntity.ok(reservationService.convertToDTO(reservation));
+    public ResponseEntity<ReservationResponse> getReservation(@PathVariable Long reservationId) {
+        return reservationService.getReservationById(reservationId)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-
-
-
-
-    // TODO: lav metoden der beregner prisen.
-//    @PostMapping("/price")
-//    public double CalculatePrice(@RequestBody PriceRequest request){
-//
-//    }
-
-
-    //TODO: Update
-//    @PutMapping
-
-
-
-    // TODO: Slet reservation
     @DeleteMapping("/{reservationId}")
     public ResponseEntity<Void> deleteReservation(@PathVariable Long reservationId) {
-        reservationService.deleteReservation(reservationId);
+        boolean deleted = reservationService.deleteReservation(reservationId);
+        if (!deleted) return ResponseEntity.notFound().build();
+
         return ResponseEntity.noContent().build();
     }
-
-
-
 }

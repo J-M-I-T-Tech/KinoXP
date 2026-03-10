@@ -1,9 +1,4 @@
-package com.kinoxp.dto;
-
-import com.kinoxp.model.movie.AgeLimit;
-import com.kinoxp.model.movie.Format;
-import com.kinoxp.model.movie.Genre;
-import com.kinoxp.model.movie.Language;
+package com.kinoxp.model.movie;
 
 public record MovieResponse(
         Long movieId,
