@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KinoXP - Movie List</title>
+    <style>
+        body { font-family: sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #333; }
+        .movie-card { border-bottom: 1px solid #ddd; padding: 15px 0; display: flex; justify-content: space-between; align-items: center; }
+        .movie-info h2 { margin: 0; font-size: 1.2em; color: #d32f2f; }
+        .movie-info p { margin: 5px 0; color: #666; }
+        .btn { background: #d32f2f; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; text-decoration: none; }
+        .btn:hover { background: #b71c1c; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Current Movies at KinoXP</h1>
+        <div id="movie-list">Loading movies...</div>
+    </div>
+
+    <script>
+        async function fetchMovies() {
+            try {
+                const response = await fetch('/kino/movies');
+                const movies = await response.json();
+                const listDiv = document.getElementById('movie-list');
+                listDiv.innerHTML = '';
+
+                if (movies.length === 0) {
+                    listDiv.innerHTML = '<p>No movies found.</p>';
+                    return;
+                }
+
+                movies.forEach(movie => {
+                    const card = document.createElement('div');
+                    card.className = 'movie-card';
+                    card.innerHTML = `
+                        <div class="movie-info">
+                            <h2>${movie.title} (${movie.releaseYear})</h2>
+                            <p>Genre: ${movie.genre} | Duration: ${movie.durationInMinutes} min</p>
+                            <p>Age Limit: ${movie.ageLimit} | Language: ${movie.language}</p>
+                        </div>
+                        <a href="#" class="btn" onclick="alert('Booking for ${movie.title} coming soon!')">Book Now</a>
+                    `;
+                    listDiv.appendChild(card);
+                });
+            } catch (error) {
+                console.error('Error fetching movies:', error);
+                document.getElementById('movie-list').innerText = 'Failed to load movies.';
+            }
+        }
+
+        window.onload = fetchMovies;
+    </script>
+</body>
+</html>

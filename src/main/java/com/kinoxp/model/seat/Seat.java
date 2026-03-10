@@ -4,10 +4,11 @@ import com.kinoxp.model.theater.Theater;
 import jakarta.persistence.*;
 
 @Entity
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"theater_id", "rowNumber", "seatNumber"}))
 public class Seat {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int seatId;
+    private Long seatId;
 
     @ManyToOne
     @JoinColumn(name = "theater_id")
@@ -16,27 +17,25 @@ public class Seat {
     private int seatNumber;
     private int rowNumber;
 
-    public Seat(int seatId, Theater theater, int seatNumber, int rowNumber) {
-        this.seatId = seatId;
-        this.theater = theater;
-        this.seatNumber = seatNumber;
-        this.rowNumber = rowNumber;
-    }
+    public Seat() {}
+
     public Seat(int seatNumber, int rowNumber) {
         this.seatNumber = seatNumber;
         this.rowNumber = rowNumber;
     }
 
-    public Seat() {
-
+    public Seat(Long seatId, Theater theater, int seatNumber, int rowNumber) {
+        this.seatId = seatId;
+        this.theater = theater;
+        this.seatNumber = seatNumber;
+        this.rowNumber = rowNumber;
     }
 
-
-    public int getSeatId() {
+    public Long getSeatId() {
         return seatId;
     }
 
-    public void setSeatId(int seatId) {
+    public void setSeatId(Long seatId) {
         this.seatId = seatId;
     }
 

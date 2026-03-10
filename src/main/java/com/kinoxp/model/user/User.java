@@ -9,7 +9,7 @@ import java.time.LocalDate;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer userID;
+    private Long userId;
 
     private String name;
     private LocalDate dateOfBirth;
@@ -17,27 +17,25 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    private String email;
     private String password;
 
     public User() {}
 
-    public User(Integer userID, String name, LocalDate dateOfBirth,
-                Role role, String email, String password){
-        this.userID = userID;
+    public User(Long userId, String name, LocalDate dateOfBirth,
+                Role role, String password){
+        this.userId = userId;
         this.name = name;
         this.dateOfBirth = dateOfBirth;
         this.role = role;
-        this.email = email;
         this.password = password;
     }
 
-    public int getUserID() {
-        return userID;
+    public Long getUserId() {
+        return userId;
     }
 
-    public void setUserID(int userID) {
-        this.userID = userID;
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
     public String getName() {
@@ -56,14 +54,6 @@ public class User {
         this.dateOfBirth = dateOfBirth;
     }
 
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
     public Role getRole() {
         return role;
     }
@@ -78,5 +68,9 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public Long getUserID() {
+        return userId;
     }
 }

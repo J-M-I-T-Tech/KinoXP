@@ -1,50 +1,97 @@
 package com.kinoxp.service;
 
 import com.kinoxp.model.movie.*;
+import com.kinoxp.repository.MovieRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class MovieService {
 
-    private static final List<Movie> movies = List.of(
-        new Movie(1,
-                "Titanic",
-                2023,
-                Genre.ROMANCE,
-                200,
-                Format.THREE_DIMENSIONAL,
-                AgeLimit.ALL,
-                Language.DANISH),
-            new Movie(2,
-                    "Titanic2",
-                    2024,
-                    Genre.ROMANCE,
-                    400,
-                    Format.TWO_DIMENSIONAL,
-                    AgeLimit.ALL,
-                    Language.DANISH
-            )
-    );
+    private final MovieRepository movieRepository;
 
-    public List<Movie> getAllMovies() {
-        return movies;
+    public MovieService(MovieRepository movieRepository) {
+        this.movieRepository = movieRepository;
     }
 
-    public Movie getMovieById(int id) {
-        return movies.stream()
-                .filter(movie -> movie.getMovieId() == id)
-                .findFirst()
-                .orElse(null);
+    public List<MovieResponse> getAllMovies() {
+        return movieRepository.findAll()
+                .stream()
+                .map(this::toResponse)
+                .toList();
     }
 
-    public Movie deleteMovieById(int id){
-        Movie movieToDelete = getMovieById(id);
-        if (movieToDelete != null) {
-            movies.remove(movieToDelete);
-            return movieToDelete;
-        }
-        return null;
+    public Optional<MovieResponse> getMovieById(Long id) {
+        return movieRepository.findById(id)
+                .map(this::toResponse);
+    }
+
+    public List<MovieResponse> getMoviesByGenre(Genre genre) {
+        return movieRepository.findByGenre(genre)
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    public List<MovieResponse> getMoviesByLanguage(Language language) {
+        return movieRepository.findByLanguage(language)
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    public List<MovieResponse> getMoviesByTitle(String title) {
+        return movieRepository.findByTitleContainingIgnoreCase(title)
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    public MovieResponse createMovie(MovieRequest request) {
+        Movie movie = new Movie();
+        applyRequest(movie, request);
+        Movie saved = movieRepository.save(movie);
+        return toResponse(saved);
+    }
+
+    public Optional<MovieResponse> updateMovie(Long id, MovieRequest request) {
+        return movieRepository.findById(id)
+                .map(existing -> {
+                    applyRequest(existing, request);
+                    Movie saved = movieRepository.save(existing);
+                    return toResponse(saved);
+                });
+    }
+
+    public boolean deleteMovieById(Long id) {
+        if (!movieRepository.existsById(id)) return false;
+
+        movieRepository.deleteById(id);
+        return true;
+    }
+
+    private void applyRequest(Movie movie, MovieRequest request) {
+        movie.setTitle(request.title());
+        movie.setReleaseYear(request.releaseYear());
+        movie.setGenre(request.genre());
+        movie.setDurationInMinutes(request.durationInMinutes());
+        movie.setFormat(request.format());
+        movie.setAgeLimit(request.ageLimit());
+        movie.setLanguage(request.language());
+    }
+
+    private MovieResponse toResponse(Movie movie) {
+        return new MovieResponse(
+                movie.getMovieId(),
+                movie.getTitle(),
+                movie.getReleaseYear(),
+                movie.getGenre(),
+                movie.getDurationInMinutes(),
+                movie.getFormat(),
+                movie.getAgeLimit(),
+                movie.getLanguage()
+        );
     }
 }

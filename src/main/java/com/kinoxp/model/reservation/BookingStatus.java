@@ -1,6 +1,6 @@
 package com.kinoxp.model.reservation;
 
-public enum Status {
+public enum BookingStatus {
     PENDING,
     CONFIRMED,
     CANCELLED,
