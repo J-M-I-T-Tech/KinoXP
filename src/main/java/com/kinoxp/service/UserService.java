@@ -1,5 +1,6 @@
 package com.kinoxp.service;
 
+import com.kinoxp.dto.UserRegistrationRequest;
 import com.kinoxp.model.user.User;
 import com.kinoxp.repository.UserRepository;
 import org.springframework.stereotype.Service;
@@ -15,7 +16,12 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public User createUser(User user) {
+    public User createUser(UserRegistrationRequest request) {
+        User user = new User();
+        user.setName(request.name());
+        user.setDateOfBirth(request.dateOfBirth());
+        user.setRole(request.role());
+        user.setPassword(request.password());
         return userRepository.save(user);
     }
 

@@ -1,6 +1,7 @@
 package com.kinoxp.controller;
 
 import com.kinoxp.dto.LoginRequest;
+import com.kinoxp.dto.UserRegistrationRequest;
 import com.kinoxp.model.user.User;
 import com.kinoxp.service.UserService;
 import org.springframework.http.HttpStatus;
@@ -10,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/kino/users")
 public class UserController {
 
     private final UserService userService;
@@ -26,8 +27,8 @@ public class UserController {
 
     // Opret bruger
     @PostMapping
-    public User createUser(@RequestBody User user) {
-        return userService.createUser(user);
+    public User createUser(@RequestBody UserRegistrationRequest request) {
+        return userService.createUser(request);
     }
 
     // Login

@@ -1,56 +1,45 @@
+<!-- In src/main/resources/static/index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KinoXP</title>
-
-    <link rel="stylesheet" href="index.css">
-
+    <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
-
 <div class="navbar">
     <a href="login.html">Login</a>
     <a href="register.html">Opret bruger</a>
 </div>
-
 <div class="container">
-
     <h1>Current Movies at KinoXP</h1>
-
-    <div class="movie-card">
-        <div class="movie-info">
-            <h2>Batman (2022)</h2>
-            <p>Genre: Action | Duration: 176 min</p>
-            <p>Age Limit: 15 | Language: English</p>
-        </div>
-
-        <button class="btn">Book Now</button>
-    </div>
-
-    <div class="movie-card">
-        <div class="movie-info">
-            <h2>Avatar 2 (2022)</h2>
-            <p>Genre: Sci-Fi | Duration: 192 min</p>
-            <p>Age Limit: 11 | Language: English</p>
-        </div>
-
-        <button class="btn">Book Now</button>
-    </div>
-
-    <div class="movie-card">
-        <div class="movie-info">
-            <h2>Spider-Man</h2>
-            <p>Genre: Action | Duration: 148 min</p>
-            <p>Age Limit: 11 | Language: English</p>
-        </div>
-
-        <button class="btn">Book Now</button>
-    </div>
-
+    <div id="movies-container"></div>
 </div>
-
+<script>
+    async function loadMovies() {
+        try {
+            const response = await fetch('/kino/movies');
+            const movies = await response.json();
+            const container = document.getElementById('movies-container');
+            movies.forEach(movie => {
+                const card = document.createElement('div');
+                card.className = 'movie-card';
+                card.innerHTML = `
+                    <div class="movie-info">
+                        <h2>${movie.title} (${movie.releaseYear})</h2>
+                        <p>Genre: ${movie.genre} | Duration: ${movie.durationInMinutes} min</p>
+                        <p>Age Limit: ${movie.ageLimit} | Language: ${movie.language}</p>
+                    </div>
+                    <button class="btn">Book Now</button>
+                `;
+                container.appendChild(card);
+            });
+        } catch (error) {
+            console.error('Error loading movies:', error);
+        }
+    }
+    loadMovies();
+</script>
 </body>
 </html>
