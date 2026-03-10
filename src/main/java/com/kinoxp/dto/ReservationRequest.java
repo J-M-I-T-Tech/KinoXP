@@ -1,4 +1,4 @@
-package com.kinoxp.model.reservation;
+package com.kinoxp.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;

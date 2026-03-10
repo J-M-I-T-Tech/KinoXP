@@ -1,5 +1,7 @@
 package com.kinoxp.controller;
 
+import com.kinoxp.dto.MovieRequest;
+import com.kinoxp.dto.MovieResponse;
 import com.kinoxp.model.movie.*;
 import com.kinoxp.service.MovieService;
 import jakarta.validation.Valid;

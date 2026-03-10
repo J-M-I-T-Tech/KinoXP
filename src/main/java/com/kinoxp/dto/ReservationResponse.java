@@ -1,4 +1,7 @@
-package com.kinoxp.model.reservation;
+package com.kinoxp.dto;
+
+import com.kinoxp.model.reservation.BookingStatus;
+import com.kinoxp.model.reservation.PaymentStatus;
 
 import java.time.LocalDateTime;
 import java.util.List;

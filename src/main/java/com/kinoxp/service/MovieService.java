@@ -1,5 +1,7 @@
 package com.kinoxp.service;
 
+import com.kinoxp.dto.MovieRequest;
+import com.kinoxp.dto.MovieResponse;
 import com.kinoxp.model.movie.*;
 import com.kinoxp.repository.MovieRepository;
 import org.springframework.stereotype.Service;

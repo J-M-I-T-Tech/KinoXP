@@ -1,8 +1,8 @@
 package com.kinoxp.controller;
 import com.kinoxp.model.reservation.PriceRequest;
 import com.kinoxp.model.reservation.Reservation;
-import com.kinoxp.model.reservation.ReservationRequest;
-import com.kinoxp.model.reservation.ReservationResponse;
+import com.kinoxp.dto.ReservationRequest;
+import com.kinoxp.dto.ReservationResponse;
 import com.kinoxp.service.ReservationService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;

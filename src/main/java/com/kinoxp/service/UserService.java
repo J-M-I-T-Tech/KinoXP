@@ -19,8 +19,8 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public User login(String email, String password) {
-        Optional<User> user = userRepository.findByEmailAndPassword(email, password);
+    public User login(String name, String password) {
+        Optional<User> user = userRepository.findByNameAndPassword(name, password);
         return user.orElse(null);
     }
 

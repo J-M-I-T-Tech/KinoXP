@@ -33,11 +33,15 @@ public class UserController {
     // Login
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody LoginRequest request) {
-        User user = userService.login(request.getEmail(), request.getPassword());
+
+        User user = userService.login(request.name(), request.password());
+
         if(user != null) {
             return ResponseEntity.ok("Login successful");
         }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email or password");
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body("Invalid name or password");
     }
 
     // Slet bruger
@@ -47,4 +51,3 @@ public class UserController {
         return ResponseEntity.ok("User with id " + id + " has been deleted.");
     }
 }
-//ffg
