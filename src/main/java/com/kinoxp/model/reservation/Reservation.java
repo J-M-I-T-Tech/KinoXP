@@ -24,6 +24,7 @@ public class Reservation {
 
     private double totalPrice;
 
+
     @Enumerated(EnumType.STRING)
     private BookingStatus bookingStatus;
 
