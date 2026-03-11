@@ -147,7 +147,8 @@ public class ReservationService {
             totalPrice *= (1 - RABAT_HVIS_MERE_END_10);
         }
 
-        return totalPrice;
+        //afrunder til 2 decimaler efter kommer
+        return Math.round(totalPrice * 100) / 100.0;
     }
 
     public double calculatePriceFromRequest(PriceRequest request) {

@@ -18,6 +18,17 @@
     <div id="movies-container"></div>
 </div>
 <script>
+    function bookMovie(movieId) {
+        const user = localStorage.getItem('user');
+        if (!user) {
+            alert('Du skal logge ind for at booke en film!');
+            window.location.href = 'login.html';
+            return;
+        }
+        window.location.href = `booking.html?movieId=${movieId}`;
+    }
+
+
     function checkUserLogin() {
         const user = localStorage.getItem('user');
         const loginLink = document.getElementById('loginLink');
@@ -55,7 +66,7 @@
                         <p>Genre: ${movie.genre} | Duration: ${movie.durationInMinutes} min</p>
                         <p>Age Limit: ${movie.ageLimit} | Language: ${movie.language}</p>
                     </div>
-                    <button class="btn">Book Now</button>
+            <button class="btn" onclick="bookMovie(${movie.movieId})">Book Now</button>
                 `;
                 container.appendChild(card);
             });
