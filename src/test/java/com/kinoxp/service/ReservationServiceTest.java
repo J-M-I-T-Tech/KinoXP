@@ -36,10 +36,8 @@ class ReservationServiceTest {
     private SeatRepository seatRepository;
     @Mock
     private ReservationSeatRepository reservationSeatRepository;
-
     @Mock
     private UserRepository userRepository;
-
 
     @BeforeEach
     void setUp() {
@@ -59,7 +57,6 @@ class ReservationServiceTest {
         // Total: 150 * 11 * 0.93 = 1534.5
         assertEquals(1534.5, actualPrice, 0.01);
     }
-
 
     @Test
     void calculateTotalPrice_ShouldAddLongFilmFee_WhenDurationOver170() {
@@ -87,7 +84,6 @@ class ReservationServiceTest {
         assertEquals(175.0, actualPrice, 0.01);
     }
 
-
     @Test
     void calculateTotalPrice_ShouldReturnStandardPrice_WhenShortMovieAndStandardRow() {
         Movie movie = new Movie("ShortFilm", 120, AgeLimit.ELVE_PLUS);
@@ -99,11 +95,9 @@ class ReservationServiceTest {
         assertEquals(130.0, actualPrice, 0.01);
     }
 
-
     @Test
-    void createReservation_ifRole_isEmploye(){
-        //arrange
-
+    void createReservation_ifRole_isEmploye() {
+        // Arrange
         ReservationRequest request = new ReservationRequest(1L, "Issa", List.of(4L), 10L);
 
         // Mock Showing and Theater relationship
@@ -136,16 +130,10 @@ class ReservationServiceTest {
         when(reservationRepository.save(any(Reservation.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
-        // act:
+        // Act
         reservationService.createReservation(request);
 
-        //assert:
+        // Assert
         verify(reservationRepository).save(any(Reservation.class));
-
-
-
-
     }
-
-
 }

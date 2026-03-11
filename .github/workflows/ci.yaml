@@ -11,7 +11,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
-      - name: Set up JDK 21
+      - name: Set up JDK 25
         uses: actions/setup-java@3a4ad32452863e756227f9b6113972bb583856fa # v4.6.0
         with:
           java-version: '25'

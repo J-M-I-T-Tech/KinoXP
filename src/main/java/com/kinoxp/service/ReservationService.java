@@ -21,10 +21,10 @@ import java.util.Optional;
 public class ReservationService {
 
     // US 3.2, 3.6, 3.7: Beregn totalpris inkl. standardpris, langfilm, rowFee og rabat
-    private static final double STANDARD_PRICE = 130.0;
-    private static final double LONG_FILM_FEE = 20.0;
-    private static final double ROW_FEE = 25.0;
-    private static final double RABAT_HVIS_MERE_END_10 = 0.07;
+    private static final double STANDARD_TICKET_PRICE = 130.0;
+    private static final double LONG_MOVIE_FEE = 20.0;
+    private static final double PREMIUM_ROW_FEE = 25.0;
+    private static final double DISCOUNT_IF_MORE_THAN_10 = 0.07;
 
     private final ReservationRepository reservationRepository;
     private final ShowingRepository showingRepository;
@@ -57,7 +57,6 @@ public class ReservationService {
 
     @Transactional
     public ReservationResponse createReservation(@Valid ReservationRequest request) {
-
         Showing showing = showingRepository.findById(request.showingId())
                 .orElseThrow(() -> new RuntimeException("Showing not found"));
 
@@ -94,10 +93,6 @@ public class ReservationService {
         reservation.setCreatedAt(LocalDateTime.now());
         reservation.setBookingStatus(BookingStatus.CONFIRMED);
         reservation.setPaymentStatus(PaymentStatus.AWAITING);
-        // denne metode glemmer at tage gebyrene med
-//        reservation.setTotalPrice(STANDARD_PRICE * seats.size());
-
-        // her får vi os gebyrene med både på longfilmfee og rowfee
         int rowNumber = seats.stream()
                 .mapToInt(Seat::getRowNumber)
                 .max()
@@ -108,7 +103,7 @@ public class ReservationService {
         for (Seat seat : seats) {
             ReservationSeat reservationSeat = new ReservationSeat();
             reservationSeat.setSeat(seat);
-            reservationSeat.setPrice(STANDARD_PRICE);
+            reservationSeat.setPrice(STANDARD_TICKET_PRICE);
             reservation.addReservedSeat(reservationSeat);
         }
 
@@ -144,16 +139,16 @@ public class ReservationService {
 
     // Beregn pris ud fra Movie, antal billetter og række
     public double calculateTotalPrice(Movie movie, int numberOfTickets, int rowNumber) {
-        double pricePerTicket = STANDARD_PRICE;
+        double pricePerTicket = STANDARD_TICKET_PRICE;
 
         // Langfilm-gebyr (US 3.6)
         if (movie.getDurationInMinutes() > 170) {
-            pricePerTicket += LONG_FILM_FEE;
+            pricePerTicket += LONG_MOVIE_FEE;
         }
 
         // Row fee for premium rækker (US 3.7)
         if (rowNumber > 7) {
-            pricePerTicket += ROW_FEE;
+            pricePerTicket += PREMIUM_ROW_FEE;
         }
 
         // Totalpris uden rabat
@@ -161,7 +156,7 @@ public class ReservationService {
 
         // Mængderabat (US 3.2)
         if (numberOfTickets > 10) {
-            totalPrice *= (1 - RABAT_HVIS_MERE_END_10);
+            totalPrice *= (1 - DISCOUNT_IF_MORE_THAN_10);
         }
 
         //afrunder til 2 decimaler efter komma
