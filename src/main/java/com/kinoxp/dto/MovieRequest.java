@@ -13,6 +13,9 @@ public record MovieRequest(
         @NotBlank(message = "Title is required")
         String title,
 
+        @NotBlank(message = "Description is required")
+        String description,
+
         @Min(value = 1888, message = "Release year must be >= 1888")
         @Max(value = 2100, message = "Release year must be <= 2100")
         int releaseYear,

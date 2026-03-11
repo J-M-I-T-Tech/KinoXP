@@ -8,6 +8,7 @@ import com.kinoxp.model.movie.Language;
 public record MovieResponse(
         Long movieId,
         String title,
+        String Description,
         int releaseYear,
         Genre genre,
         int durationInMinutes,

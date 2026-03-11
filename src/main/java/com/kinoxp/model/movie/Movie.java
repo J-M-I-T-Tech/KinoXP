@@ -15,6 +15,9 @@ public class Movie {
     @NotBlank
     private String title;
 
+    @NotBlank
+    private String description;
+
     @Min(1888)
     @Max(2100)
     private int releaseYear;
@@ -40,7 +43,7 @@ public class Movie {
 
     public Movie() {}
 
-    public Movie(Long movieId, String title, int releaseYear, Genre genre,
+    public Movie(Long movieId, String title, String description, int releaseYear, Genre genre,
                  int durationInMinutes, Format format, AgeLimit ageLimit, Language language) {
         this.movieId = movieId;
         this.title = title;
@@ -72,6 +75,14 @@ public class Movie {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public int getReleaseYear() {
