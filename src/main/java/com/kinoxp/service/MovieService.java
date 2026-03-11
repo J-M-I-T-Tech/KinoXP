@@ -88,6 +88,7 @@ public class MovieService {
         return new MovieResponse(
                 movie.getMovieId(),
                 movie.getTitle(),
+                movie.getDescription(),
                 movie.getReleaseYear(),
                 movie.getGenre(),
                 movie.getDurationInMinutes(),
