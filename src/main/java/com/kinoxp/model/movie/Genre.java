@@ -1,8 +1,8 @@
 package com.kinoxp.model.movie;
 
 public enum Genre {
-    HORROR,
-    ROMANCE,
+    GYSER,
+    ROMANTISK,
     ACTION,
     SCIENCE_FICTION
 }

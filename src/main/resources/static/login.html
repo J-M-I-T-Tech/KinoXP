@@ -2,7 +2,7 @@
 <html lang="da">
 <head>
     <meta charset="UTF-8">
-    <title>Login</title>
+    <title>Log ind</title>
     <link rel="stylesheet" href="style.css">
 </head>
 
@@ -12,17 +12,17 @@
 
     <a href="index.html" class="back-btn">← Tilbage</a>
 
-    <h1>Login</h1>
+    <h1>Log ind</h1>
 
     <form id="loginForm">
 
         <label>Navn</label>
         <input type="text" id="name" name="name" required>
 
-        <label>Password</label>
+        <label>Adgangskode</label>
         <input type="password" id="password" name="password" required>
 
-        <button type="submit" class="btn">Login</button>
+        <button type="submit" class="btn">Log ind</button>
         <div id="errorMessage" style="color: red; margin-top: 10px;"></div>
 
     </form>
@@ -55,7 +55,7 @@
             }
         } catch (error) {
             errorDiv.textContent = 'Der opstod en fejl. Prøv igen senere.';
-            console.error('Login error:', error);
+            console.error('Log ind fejl:', error);
         }
     });
 </script>
