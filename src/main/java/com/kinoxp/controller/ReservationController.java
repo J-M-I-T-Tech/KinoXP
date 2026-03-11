@@ -54,7 +54,6 @@ public class ReservationController {
         return ResponseEntity.ok(price);
     }
 
-
     // TODO: Slet reservation
     @DeleteMapping("/{reservationId}")
     public ResponseEntity<Void> deleteReservation(@PathVariable Long reservationId) {

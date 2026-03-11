@@ -1,4 +1,5 @@
 package com.kinoxp.service;
+
 import com.kinoxp.dto.ReservationRequest;
 import com.kinoxp.dto.ReservationResponse;
 import com.kinoxp.model.movie.Movie;
@@ -11,7 +12,7 @@ import com.kinoxp.repository.*;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Service;
-import com.kinoxp.model.reservation.PriceRequest;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -67,9 +68,9 @@ public class ReservationService {
         }
 
         User user = userRepository.findById(request.userId())
-                .orElseThrow( () -> new RuntimeException("Acces denied"));
-        if(user.getRole() !=Role.EMPLOYEE) {
-            throw new RuntimeException("Acces denied");
+                .orElseThrow(() -> new RuntimeException("Access denied"));
+        if (user.getRole() != Role.EMPLOYEE) {
+            throw new RuntimeException("Access denied");
         }
 
         for (Seat seat : seats) {
