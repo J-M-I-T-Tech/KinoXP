@@ -7,8 +7,7 @@ public class PriceRequest {
     private int numberOfTickets;
     private int rowNumber;
 
-    public PriceRequest() {
-    }
+    public PriceRequest() {}
 
     public PriceRequest(Long showingId, int numberOfTickets, int rowNumber) {
         this.showingId = showingId;
