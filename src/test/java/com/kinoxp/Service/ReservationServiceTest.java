@@ -50,7 +50,7 @@ class ReservationServiceTest {
 
     @Test
     void calculateTotalPrice_ShouldGive7ProcentDiscount_WhenMoreThan10Tickets() {
-        Movie movie = new Movie("Titanic", 195, AgeLimit.ELEVEN_PLUS);
+        Movie movie = new Movie("Titanic", 195, AgeLimit.ELVE_PLUS);
         int numberOfTickets = 11;
         int rowNumber = 5; // standard række under 7
 
@@ -65,7 +65,7 @@ class ReservationServiceTest {
 
     @Test
     void calculateTotalPrice_ShouldAddLongFilmFee_WhenDurationOver170() {
-        Movie movie = new Movie("Titanic", 195, AgeLimit.ELEVEN_PLUS);
+        Movie movie = new Movie("Titanic", 195, AgeLimit.ELVE_PLUS);
         int numberOfTickets = 1;
         int rowNumber = 5;
 
@@ -79,7 +79,7 @@ class ReservationServiceTest {
     // Test for når der ikke er et gebyr på, altså når filmen er 170 minutter og derunder.
     @Test
     void calculateTotalPrice_ShouldAddRowFee_WhenRowNumberOver7() {
-        Movie movie = new Movie("Titanic", 195, AgeLimit.ELEVEN_PLUS);
+        Movie movie = new Movie("Titanic", 195, AgeLimit.ELVE_PLUS);
         int numberOfTickets = 1;
         int rowNumber = 8; // premium række
 
@@ -92,7 +92,7 @@ class ReservationServiceTest {
 
     @Test
     void calculateTotalPrice_ShouldReturnStandardPrice_WhenShortMovieAndStandardRow() {
-        Movie movie = new Movie("ShortFilm", 120, AgeLimit.ELEVEN_PLUS);
+        Movie movie = new Movie("ShortFilm", 120, AgeLimit.ELVE_PLUS);
         int numberOfTickets = 1;
         int rowNumber = 5;
 
@@ -109,7 +109,7 @@ class ReservationServiceTest {
         ReservationRequest request = new ReservationRequest(1L, "Issa", List.of(4L), 10L);
 
         // Mock Showing and Theater relationship
-        Movie movie = new Movie("Titanic", 195, AgeLimit.ELEVEN_PLUS);
+        Movie movie = new Movie("Titanic", 195, AgeLimit.ELVE_PLUS);
 
         Showing showing = new Showing();
         showing.setShowingId(1L);

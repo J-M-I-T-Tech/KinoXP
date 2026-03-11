@@ -1,6 +1,6 @@
 package com.kinoxp.model.movie;
 
 public enum Format {
-    THREE_DIMENSIONAL,
-    TWO_DIMENSIONAL
+    FORMAT_3D,
+    FORMAT_2D
 }
