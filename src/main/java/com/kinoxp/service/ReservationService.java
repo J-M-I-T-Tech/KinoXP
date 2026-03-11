@@ -5,10 +5,9 @@ import com.kinoxp.model.movie.Movie;
 import com.kinoxp.model.reservation.*;
 import com.kinoxp.model.seat.Seat;
 import com.kinoxp.model.showing.Showing;
-import com.kinoxp.repository.ReservationRepository;
-import com.kinoxp.repository.ReservationSeatRepository;
-import com.kinoxp.repository.SeatRepository;
-import com.kinoxp.repository.ShowingRepository;
+import com.kinoxp.model.user.Role;
+import com.kinoxp.model.user.User;
+import com.kinoxp.repository.*;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Service;
@@ -30,15 +29,17 @@ public class ReservationService {
     private final ShowingRepository showingRepository;
     private final SeatRepository seatRepository;
     private final ReservationSeatRepository reservationSeatRepository;
+    private final UserRepository userRepository;
 
     public ReservationService(ReservationRepository reservationRepository,
                               ShowingRepository showingRepository,
                               SeatRepository seatRepository,
-                              ReservationSeatRepository reservationSeatRepository) {
+                              ReservationSeatRepository reservationSeatRepository, UserRepository userRepository) {
         this.reservationRepository = reservationRepository;
         this.showingRepository = showingRepository;
         this.seatRepository = seatRepository;
         this.reservationSeatRepository = reservationSeatRepository;
+        this.userRepository = userRepository;
     }
 
     public List<ReservationResponse> getAllReservations() {
@@ -55,6 +56,7 @@ public class ReservationService {
 
     @Transactional
     public ReservationResponse createReservation(@Valid ReservationRequest request) {
+
         Showing showing = showingRepository.findById(request.showingId())
                 .orElseThrow(() -> new RuntimeException("Showing not found"));
 
@@ -62,6 +64,12 @@ public class ReservationService {
 
         if (seats.size() != request.seatIds().size()) {
             throw new RuntimeException("One or more seats were not found");
+        }
+
+        User user = userRepository.findById(request.userId())
+                .orElseThrow( () -> new RuntimeException("Acces denied"));
+        if(user.getRole() !=Role.EMPLOYEE) {
+            throw new RuntimeException("Acces denied");
         }
 
         for (Seat seat : seats) {
@@ -85,8 +93,16 @@ public class ReservationService {
         reservation.setCreatedAt(LocalDateTime.now());
         reservation.setBookingStatus(BookingStatus.CONFIRMED);
         reservation.setPaymentStatus(PaymentStatus.AWAITING);
+        // denne metode glemmer at tage gebyrene med
+//        reservation.setTotalPrice(STANDARD_PRICE * seats.size());
 
-        reservation.setTotalPrice(STANDARD_PRICE * seats.size());
+        // her får vi os gebyrene med både på longfilmfee og rowfee
+        int rowNumber = seats.stream()
+                .mapToInt(Seat::getRowNumber)
+                .max()
+                .orElse(1);
+        double totalPrice = calculateTotalPrice(showing.getMovie(), seats.size(), rowNumber);
+        reservation.setTotalPrice(totalPrice);
 
         for (Seat seat : seats) {
             ReservationSeat reservationSeat = new ReservationSeat();
@@ -147,7 +163,8 @@ public class ReservationService {
             totalPrice *= (1 - RABAT_HVIS_MERE_END_10);
         }
 
-        return totalPrice;
+        //afrunder til 2 decimaler efter komma
+        return Math.round(totalPrice * 100) / 100.0;
     }
 
     public double calculatePriceFromRequest(PriceRequest request) {
@@ -163,5 +180,12 @@ public class ReservationService {
                 request.getNumberOfTickets(),
                 request.getRowNumber()
         );
+    }
+
+    public List<ReservationResponse> getReservationsByCustomerName(String customerName) {
+        return reservationRepository.findByCustomerName(customerName)
+                .stream()
+                .map(this::toResponse)
+                .toList();
     }
 }

@@ -29,7 +29,7 @@
             <option value="ADMIN">Admin</option>
         </select>
 
-        <label>Password</label>
+        <label>Adgangskode</label>
         <input type="password" id="password" name="password" required>
 
         <button type="submit" class="btn">Opret bruger</button>
@@ -67,7 +67,7 @@
             }
         } catch (error) {
             errorDiv.textContent = 'Der opstod en fejl. Prøv igen senere.';
-            console.error('Register error:', error);
+            console.error('Registrer fejl:', error);
         }
     });
 </script>

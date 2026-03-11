@@ -31,7 +31,7 @@ public class ReservationController {
     @PostMapping
     public ResponseEntity<ReservationResponse> createReservation(@Valid @RequestBody ReservationRequest request) {
         ReservationResponse createdReservation = reservationService.createReservation(request);
-        URI location = URI.create("/api/reservations/" + createdReservation.reservationId());
+        URI location = URI.create("/kino/reservations/" + createdReservation.reservationId());
         return ResponseEntity.created(location).body(createdReservation);
     }
 
@@ -42,6 +42,11 @@ public class ReservationController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @GetMapping("/customer/{customerName}")
+    public ResponseEntity<List<ReservationResponse>> getReservationsByCustomer(@PathVariable String customerName) {
+        return ResponseEntity.ok(reservationService.getReservationsByCustomerName(customerName));
+    }
+
     // TODO: metoden der beregner prisen.
     @PostMapping("/price")
     public ResponseEntity<Double> calculatePrice(@RequestBody PriceRequest request) {
@@ -49,8 +54,6 @@ public class ReservationController {
         return ResponseEntity.ok(price);
     }
 
-    //TODO: Update
-//    @PutMapping
 
     // TODO: Slet reservation
     @DeleteMapping("/{reservationId}")
@@ -60,4 +63,10 @@ public class ReservationController {
 
         return ResponseEntity.noContent().build();
     }
+
+    //TODO: US 2.3 - Rediger reservation (medarbejder)
+    //@PutMapping
+
+   // @PatchMapping
+
 }

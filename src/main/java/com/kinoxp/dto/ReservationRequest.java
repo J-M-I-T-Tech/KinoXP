@@ -1,8 +1,10 @@
 package com.kinoxp.dto;
 
+import com.kinoxp.model.user.User;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Null;
 
 import java.util.List;
 
@@ -14,6 +16,11 @@ public record ReservationRequest(
         String customerName,
 
         @NotEmpty(message = "At least one seat must be selected")
-        List<Long> seatIds
+        List<Long> seatIds,
+
+        @NotNull(message = "Create a user")
+        Long userId
+
+
 ) {
 }
