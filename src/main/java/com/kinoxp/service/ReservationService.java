@@ -5,10 +5,9 @@ import com.kinoxp.model.movie.Movie;
 import com.kinoxp.model.reservation.*;
 import com.kinoxp.model.seat.Seat;
 import com.kinoxp.model.showing.Showing;
-import com.kinoxp.repository.ReservationRepository;
-import com.kinoxp.repository.ReservationSeatRepository;
-import com.kinoxp.repository.SeatRepository;
-import com.kinoxp.repository.ShowingRepository;
+import com.kinoxp.model.user.Role;
+import com.kinoxp.model.user.User;
+import com.kinoxp.repository.*;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Service;
@@ -30,15 +29,17 @@ public class ReservationService {
     private final ShowingRepository showingRepository;
     private final SeatRepository seatRepository;
     private final ReservationSeatRepository reservationSeatRepository;
+    private final UserRepository userRepository;
 
     public ReservationService(ReservationRepository reservationRepository,
                               ShowingRepository showingRepository,
                               SeatRepository seatRepository,
-                              ReservationSeatRepository reservationSeatRepository) {
+                              ReservationSeatRepository reservationSeatRepository, UserRepository userRepository) {
         this.reservationRepository = reservationRepository;
         this.showingRepository = showingRepository;
         this.seatRepository = seatRepository;
         this.reservationSeatRepository = reservationSeatRepository;
+        this.userRepository = userRepository;
     }
 
     public List<ReservationResponse> getAllReservations() {
@@ -55,6 +56,7 @@ public class ReservationService {
 
     @Transactional
     public ReservationResponse createReservation(@Valid ReservationRequest request) {
+
         Showing showing = showingRepository.findById(request.showingId())
                 .orElseThrow(() -> new RuntimeException("Showing not found"));
 
@@ -62,6 +64,12 @@ public class ReservationService {
 
         if (seats.size() != request.seatIds().size()) {
             throw new RuntimeException("One or more seats were not found");
+        }
+
+        User user = userRepository.findById(request.userId())
+                .orElseThrow( () -> new RuntimeException("Acces denied"));
+        if(user.getRole() !=Role.EMPLOYEE) {
+            throw new RuntimeException("Acces denied");
         }
 
         for (Seat seat : seats) {
