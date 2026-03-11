@@ -45,8 +45,8 @@ public class UserController {
 
     // Slet bruger
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteUser(@PathVariable long id){
+    public ResponseEntity<Void> deleteUser(@PathVariable long id) {
         userService.deleteUser(id);
-        return ResponseEntity.ok("Bruger med id " + id + " er blevet slettet.");
+        return ResponseEntity.noContent().build();
     }
 }
