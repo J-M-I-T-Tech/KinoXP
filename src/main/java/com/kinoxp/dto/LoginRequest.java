@@ -3,9 +3,9 @@ package com.kinoxp.dto;
 import jakarta.validation.constraints.NotBlank;
 
 public record LoginRequest(
-    @NotBlank(message = "Name is required")
-    String name,
-    @NotBlank(message = "Password is required")
-    String password
-){
+        @NotBlank(message = "Name is required")
+        String name,
+        @NotBlank(message = "Password is required")
+        String password
+) {
 }

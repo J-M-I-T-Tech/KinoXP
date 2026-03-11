@@ -9,4 +9,5 @@ public record UserRegistrationRequest(
         LocalDate dateOfBirth,
         Role role,
         String password
-) {}
+) {
+}

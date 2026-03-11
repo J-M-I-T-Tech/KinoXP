@@ -1,17 +1,15 @@
 package com.kinoxp.controller;
-import com.kinoxp.model.reservation.PriceRequest;
-import com.kinoxp.model.reservation.Reservation;
+
 import com.kinoxp.dto.ReservationRequest;
 import com.kinoxp.dto.ReservationResponse;
+import com.kinoxp.model.reservation.PriceRequest;
 import com.kinoxp.service.ReservationService;
 import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.util.List;
-
 
 @RestController
 @RequestMapping("kino/reservations")
@@ -54,7 +52,6 @@ public class ReservationController {
         return ResponseEntity.ok(price);
     }
 
-
     // TODO: Slet reservation
     @DeleteMapping("/{reservationId}")
     public ResponseEntity<Void> deleteReservation(@PathVariable Long reservationId) {
@@ -65,8 +62,9 @@ public class ReservationController {
     }
 
     //TODO: US 2.3 - Rediger reservation (medarbejder)
-    //@PutMapping
 
-   // @PatchMapping
+    // @PutMapping
+
+    // @PatchMapping
 
 }

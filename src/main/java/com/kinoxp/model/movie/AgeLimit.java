@@ -1,8 +1,8 @@
 package com.kinoxp.model.movie;
 
 public enum AgeLimit {
-    Alle,
+    ALLE,
     SYV_PLUS,
-    ELVE_PLUS,
+    ELLEVE_PLUS,
     FEMTEN_PLUS
 }

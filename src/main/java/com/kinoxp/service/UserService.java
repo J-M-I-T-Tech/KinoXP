@@ -12,6 +12,7 @@ import java.util.Optional;
 public class UserService {
 
     private final UserRepository userRepository;
+
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
@@ -34,7 +35,10 @@ public class UserService {
         return userRepository.findAll();
     }
 
-    public void deleteUser(long id) {
-        userRepository.deleteById(id);
+    public boolean deleteUserById(long userId) {
+        if (!userRepository.existsById(userId)) return false;
+
+        userRepository.deleteById(userId);
+        return true;
     }
 }

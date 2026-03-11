@@ -1,4 +1,4 @@
-package com.kinoxp.Service;
+package com.kinoxp.service;
 
 import com.kinoxp.dto.ReservationRequest;
 import com.kinoxp.model.movie.AgeLimit;
@@ -9,13 +9,11 @@ import com.kinoxp.model.showing.Showing;
 import com.kinoxp.model.user.Role;
 import com.kinoxp.model.user.User;
 import com.kinoxp.repository.*;
-import com.kinoxp.service.ReservationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.jdbc.support.CustomSQLErrorCodesTranslation;
 
 import java.util.List;
 import java.util.Optional;
@@ -38,10 +36,8 @@ class ReservationServiceTest {
     private SeatRepository seatRepository;
     @Mock
     private ReservationSeatRepository reservationSeatRepository;
-
     @Mock
     private UserRepository userRepository;
-
 
     @BeforeEach
     void setUp() {
@@ -50,7 +46,7 @@ class ReservationServiceTest {
 
     @Test
     void calculateTotalPrice_ShouldGive7ProcentDiscount_WhenMoreThan10Tickets() {
-        Movie movie = new Movie("Titanic", 195, AgeLimit.ELVE_PLUS);
+        Movie movie = new Movie("Titanic", 195, AgeLimit.ELLEVE_PLUS);
         int numberOfTickets = 11;
         int rowNumber = 5; // standard række under 7
 
@@ -62,10 +58,9 @@ class ReservationServiceTest {
         assertEquals(1534.5, actualPrice, 0.01);
     }
 
-
     @Test
     void calculateTotalPrice_ShouldAddLongFilmFee_WhenDurationOver170() {
-        Movie movie = new Movie("Titanic", 195, AgeLimit.ELVE_PLUS);
+        Movie movie = new Movie("Titanic", 195, AgeLimit.ELLEVE_PLUS);
         int numberOfTickets = 1;
         int rowNumber = 5;
 
@@ -79,7 +74,7 @@ class ReservationServiceTest {
     // Test for når der ikke er et gebyr på, altså når filmen er 170 minutter og derunder.
     @Test
     void calculateTotalPrice_ShouldAddRowFee_WhenRowNumberOver7() {
-        Movie movie = new Movie("Titanic", 195, AgeLimit.ELVE_PLUS);
+        Movie movie = new Movie("Titanic", 195, AgeLimit.ELLEVE_PLUS);
         int numberOfTickets = 1;
         int rowNumber = 8; // premium række
 
@@ -89,10 +84,9 @@ class ReservationServiceTest {
         assertEquals(175.0, actualPrice, 0.01);
     }
 
-
     @Test
     void calculateTotalPrice_ShouldReturnStandardPrice_WhenShortMovieAndStandardRow() {
-        Movie movie = new Movie("ShortFilm", 120, AgeLimit.ELVE_PLUS);
+        Movie movie = new Movie("ShortFilm", 120, AgeLimit.ELLEVE_PLUS);
         int numberOfTickets = 1;
         int rowNumber = 5;
 
@@ -100,16 +94,14 @@ class ReservationServiceTest {
 
         assertEquals(130.0, actualPrice, 0.01);
     }
-    
-    
-    @Test
-    void createReservation_ifRole_isEmploye(){
-        //arrange
 
+    @Test
+    void createReservation_ifRole_isEmploye() {
+        // Arrange
         ReservationRequest request = new ReservationRequest(1L, "Issa", List.of(4L), 10L);
 
         // Mock Showing and Theater relationship
-        Movie movie = new Movie("Titanic", 195, AgeLimit.ELVE_PLUS);
+        Movie movie = new Movie("Titanic", 195, AgeLimit.ELLEVE_PLUS);
 
         Showing showing = new Showing();
         showing.setShowingId(1L);
@@ -138,21 +130,10 @@ class ReservationServiceTest {
         when(reservationRepository.save(any(Reservation.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
-        // act:
+        // Act
         reservationService.createReservation(request);
 
-        //assert:
+        // Assert
         verify(reservationRepository).save(any(Reservation.class));
-
-
-
-
     }
-
-
 }
-
-
-
-      
-

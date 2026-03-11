@@ -51,7 +51,7 @@
                 localStorage.setItem('user', JSON.stringify(userData));
                 window.location.href = 'index.html';
             } else {
-                errorDiv.textContent = 'Forkert navn eller password';
+                errorDiv.textContent = 'Forkert navn eller adgangskode';
             }
         } catch (error) {
             errorDiv.textContent = 'Der opstod en fejl. Prøv igen senere.';
