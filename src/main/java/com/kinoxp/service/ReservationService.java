@@ -1,12 +1,13 @@
 package com.kinoxp.service;
 
+import com.kinoxp.dto.PriceResponse;
 import com.kinoxp.dto.ReservationRequest;
 import com.kinoxp.dto.ReservationResponse;
+import com.kinoxp.model.movie.Format;
 import com.kinoxp.model.movie.Movie;
 import com.kinoxp.model.reservation.*;
 import com.kinoxp.model.seat.Seat;
 import com.kinoxp.model.showing.Showing;
-import com.kinoxp.model.user.Role;
 import com.kinoxp.model.user.User;
 import com.kinoxp.repository.*;
 import jakarta.transaction.Transactional;
@@ -14,6 +15,7 @@ import jakarta.validation.Valid;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,8 +25,12 @@ public class ReservationService {
     // US 3.2, 3.6, 3.7: Beregn totalpris inkl. standardpris, langfilm, rowFee og rabat
     private static final double STANDARD_TICKET_PRICE = 130.0;
     private static final double LONG_MOVIE_FEE = 20.0;
-    private static final double PREMIUM_ROW_FEE = 25.0;
-    private static final double DISCOUNT_IF_MORE_THAN_10 = 0.07;
+    private static final double THREE_D_FEE = 10.0;
+    private static final double COWBOY_ROW_DISCOUNT = 30.0;
+    private static final double SOFA_ROW_FEE = 25.0;
+    private static final double RESERVATION_FEE = 5.0;
+    private static final double GROUP_DISCOUNT_THRESHOLD = 10;
+    private static final double GROUP_DISCOUNT_RATE = 0.07;
 
     private final ReservationRepository reservationRepository;
     private final ShowingRepository showingRepository;
@@ -68,7 +74,7 @@ public class ReservationService {
 
         User user = userRepository.findById(request.userId())
                 .orElseThrow(() -> new RuntimeException("Access denied"));
-        if (user.getRole() != Role.EMPLOYEE) {
+        if (user.getRole() == null) {
             throw new RuntimeException("Access denied");
         }
 
@@ -93,17 +99,14 @@ public class ReservationService {
         reservation.setCreatedAt(LocalDateTime.now());
         reservation.setBookingStatus(BookingStatus.CONFIRMED);
         reservation.setPaymentStatus(PaymentStatus.AWAITING);
-        int rowNumber = seats.stream()
-                .mapToInt(Seat::getRowNumber)
-                .max()
-                .orElse(1);
-        double totalPrice = calculateTotalPrice(showing.getMovie(), seats.size(), rowNumber);
+
+        double totalPrice = calculateTotalPrice(showing, seats);
         reservation.setTotalPrice(totalPrice);
 
         for (Seat seat : seats) {
             ReservationSeat reservationSeat = new ReservationSeat();
             reservationSeat.setSeat(seat);
-            reservationSeat.setPrice(STANDARD_TICKET_PRICE);
+            reservationSeat.setPrice(calculateSeatPrice(showing, seat));
             reservation.addReservedSeat(reservationSeat);
         }
 
@@ -137,51 +140,128 @@ public class ReservationService {
         );
     }
 
-    // Beregn pris ud fra Movie, antal billetter og række
-    public double calculateTotalPrice(Movie movie, int numberOfTickets, int rowNumber) {
-        double pricePerTicket = STANDARD_TICKET_PRICE;
+    public double calculateSeatPrice(Showing showing, Seat seat) {
+        double price = STANDARD_TICKET_PRICE;
+        Movie movie = showing.getMovie();
 
-        // Langfilm-gebyr (US 3.6)
+        // Cowboy rækker (de to første rækker) er billigere
+        if (seat.getRowNumber() <= 2) {
+            price -= COWBOY_ROW_DISCOUNT;
+        }
+        // Sofa rækker (de bageste par rækker i de største sale) er dyrere
+        // Antager at "største sale" er dem med mere end 15 rækker (baseret på DataInitializer)
+        else if (showing.getTheater().getTotalRows() > 15 &&
+                seat.getRowNumber() > showing.getTheater().getTotalRows() - 2) {
+            price += SOFA_ROW_FEE;
+        }
+
+        // Helaftensfilm (> 170 min) tillæg
         if (movie.getDurationInMinutes() > 170) {
-            pricePerTicket += LONG_MOVIE_FEE;
+            price += LONG_MOVIE_FEE;
         }
 
-        // Row fee for premium rækker (US 3.7)
-        if (rowNumber > 7) {
-            pricePerTicket += PREMIUM_ROW_FEE;
+        // 3D film tillæg
+        if (movie.getFormat() == Format.FORMAT_3D) {
+            price += THREE_D_FEE;
         }
 
-        // Totalpris uden rabat
-        double totalPrice = pricePerTicket * numberOfTickets;
-
-        // Mængderabat (US 3.2)
-        if (numberOfTickets > 10) {
-            totalPrice *= (1 - DISCOUNT_IF_MORE_THAN_10);
-        }
-
-        //afrunder til 2 decimaler efter komma
-        return Math.round(totalPrice * 100) / 100.0;
+        return price;
     }
 
-    public double calculatePriceFromRequest(PriceRequest request) {
-        // Hent Showing og Movie
+    public double calculateTotalPrice(Showing showing, List<Seat> seats) {
+        double totalTicketPrice = 0;
+        for (Seat seat : seats) {
+            totalTicketPrice += calculateSeatPrice(showing, seat);
+        }
+
+        // Gruppe-rabat (pt. 7% af billetprisen uden tillæg) for mere end 10 billetter
+        // "Uden tillæg" tolkes som 7% af (STANDARD_TICKET_PRICE * antal billetter)
+        if (seats.size() > GROUP_DISCOUNT_THRESHOLD) {
+            double discount = (STANDARD_TICKET_PRICE * seats.size()) * GROUP_DISCOUNT_RATE;
+            totalTicketPrice -= discount;
+        }
+
+        // Reservationsgebyr på 5 eller færre billetter
+        if (seats.size() <= 5) {
+            totalTicketPrice += RESERVATION_FEE;
+        }
+
+        return Math.round(totalTicketPrice * 100) / 100.0;
+    }
+
+    public PriceResponse calculatePriceFromRequest(PriceRequest request) {
         Showing showing = showingRepository.findById(request.getShowingId())
                 .orElseThrow(() -> new RuntimeException("Showing not found"));
 
-        Movie movie = showing.getMovie();
+        List<Seat> seats = seatRepository.findAllById(request.getSeatIds());
 
-        // Beregn totalpris inkl. langfilmgebyr, rækkegebyr og rabat
-        return calculateTotalPrice(
-                movie,
-                request.getNumberOfTickets(),
-                request.getRowNumber()
-        );
+        return calculateFullPriceDetails(showing, seats);
+    }
+
+    public PriceResponse calculateFullPriceDetails(Showing showing, List<Seat> seats) {
+        double totalTicketPrice = 0;
+        List<PriceResponse.PriceBreakdownItem> breakdown = new ArrayList<>();
+
+        int cowboySeats = 0;
+        int sofaSeats = 0;
+        int standardSeats = 0;
+
+        Movie movie = showing.getMovie();
+        boolean isLongFilm = movie.getDurationInMinutes() > 170;
+        boolean is3D = movie.getFormat() == Format.FORMAT_3D;
+
+        for (Seat seat : seats) {
+            double seatBasePrice = STANDARD_TICKET_PRICE;
+            if (seat.getRowNumber() <= 2) {
+                seatBasePrice -= COWBOY_ROW_DISCOUNT;
+                cowboySeats++;
+            } else if (showing.getTheater().getTotalRows() > 15 &&
+                    seat.getRowNumber() > showing.getTheater().getTotalRows() - 2) {
+                seatBasePrice += SOFA_ROW_FEE;
+                sofaSeats++;
+            } else {
+                standardSeats++;
+            }
+
+            if (isLongFilm) seatBasePrice += LONG_MOVIE_FEE;
+            if (is3D) seatBasePrice += THREE_D_FEE;
+
+            totalTicketPrice += seatBasePrice;
+        }
+
+        if (standardSeats > 0) breakdown.add(new PriceResponse.PriceBreakdownItem("Standard billetter (" + standardSeats + " stk)", standardSeats * STANDARD_TICKET_PRICE));
+        if (cowboySeats > 0) breakdown.add(new PriceResponse.PriceBreakdownItem("Cowboy-rækker (" + cowboySeats + " stk)", cowboySeats * (STANDARD_TICKET_PRICE - COWBOY_ROW_DISCOUNT)));
+        if (sofaSeats > 0) breakdown.add(new PriceResponse.PriceBreakdownItem("Sofa-rækker (" + sofaSeats + " stk)", sofaSeats * (STANDARD_TICKET_PRICE + SOFA_ROW_FEE)));
+
+        if (isLongFilm) breakdown.add(new PriceResponse.PriceBreakdownItem("Tillæg: Helaftensfilm", seats.size() * LONG_MOVIE_FEE));
+        if (is3D) breakdown.add(new PriceResponse.PriceBreakdownItem("Tillæg: 3D-film", seats.size() * THREE_D_FEE));
+
+        if (seats.size() > GROUP_DISCOUNT_THRESHOLD) {
+            double discount = (STANDARD_TICKET_PRICE * seats.size()) * GROUP_DISCOUNT_RATE;
+            totalTicketPrice -= discount;
+            breakdown.add(new PriceResponse.PriceBreakdownItem("Grupperabat (7% af basis)", -discount));
+        }
+
+        if (seats.size() > 0 && seats.size() <= 5) {
+            totalTicketPrice += RESERVATION_FEE;
+            breakdown.add(new PriceResponse.PriceBreakdownItem("Reservationsgebyr", RESERVATION_FEE));
+        }
+
+        double finalPrice = Math.round(totalTicketPrice * 100) / 100.0;
+        return new PriceResponse(finalPrice, breakdown);
     }
 
     public List<ReservationResponse> getReservationsByCustomerName(String customerName) {
         return reservationRepository.findByCustomerName(customerName)
                 .stream()
                 .map(this::toResponse)
+                .toList();
+    }
+
+    public List<Long> getReservedSeatIdsByShowingId(Long showingId) {
+        return reservationSeatRepository.findByReservation_Showing_ShowingId(showingId)
+                .stream()
+                .map(rs -> rs.getSeat().getSeatId())
                 .toList();
     }
 }
