@@ -9,30 +9,16 @@
 <body>
 <div class="container">
     <a href="index.html" class="back-btn">← Tilbage</a>
-    <div id="movie-content" class="movie-details-container">
+    <div id="movie-detail" class="movie-details-container">
         <!-- Film information vil blive indlæst her -->
-    </div>
-    <div class="showings-container">
-        <h2>Kommende forestillinger</h2>
-        <div id="showings-list" class="showing-list">
-            <!-- Forestillinger vil blive indlæst her -->
-        </div>
     </div>
 </div>
 
 <div class="navbar" id="navbar">
-    <a href="login.html" id="loginLink">Login</a>
+    <a href="login.html" id="loginLink">Log ind</a>
     <a href="register.html" id="registerLink">Opret bruger</a>
     <a href="#" id="logoutLink" style="display: none;">Log ud</a>
     <span id="userName" style="display: none; color: #d32f2f; margin-left: 15px;"></span>
-</div>
-
-<div class="movie-detail-container">
-    <button class="back-btn" onclick="window.location.href='index.html'">← Tilbage til film</button>
-
-    <div class="movie-detail-card" id="movie-detail">
-        <p>Indlæser film...</p>
-    </div>
 </div>
 
 <script>
@@ -56,19 +42,26 @@
             logoutLink.addEventListener('click', (e) => {
                 e.preventDefault();
                 localStorage.removeItem('user');
+                alert('Du er nu logget ud.');
                 window.location.href = 'index.html';
             });
         }
     }
 
-    function bookMovie(movieId) {
+    function bookMovie(movieId, showingId) {
         const user = localStorage.getItem('user');
         if (!user) {
             alert('Du skal logge ind for at booke en film!');
             window.location.href = 'login.html';
             return;
         }
-        window.location.href = `booking.html?movieId=${movieId}`;
+
+        if (!showingId) {
+            window.location.href = `booking.html?movieId=${movieId}`;
+            return;
+        }
+
+        window.location.href = `booking.html?movieId=${movieId}&showingId=${showingId}`;
     }
 
     function addFilter(type, value) {
@@ -128,18 +121,17 @@
             // Hent forestillinger
             let showingsHtml = '<p class="no-showings">Ingen kommende forestillinger.</p>';
             try {
-                const showingsRes = await fetch(`/kino/showings?movieId=${movieId}`);
+                const showingsRes = await fetch(`/kino/showings/movie/${movieId}`);
                 if (showingsRes.ok) {
                     const showings = await showingsRes.json();
-                    const upcoming = showings.filter(s => s.status === 'UPCOMING');
-                    if (upcoming.length > 0) {
-                        showingsHtml = upcoming.map(s => `
+                    if (showings.length > 0) {
+                        showingsHtml = showings.map(s => `
                             <div class="showing-card">
                                 <div class="showing-info">
                                     ${formatDateTime(s.startTime)}
                                     <span>${s.theaterName || 'Sal'}</span>
                                 </div>
-                                <button class="btn" onclick="bookMovie(${movie.movieId})">Book Nu</button>
+                                <button class="btn" onclick="bookMovie(${movie.movieId}, ${s.showingId})">Bestil nu</button>
                             </div>
                         `).join('');
                     }
@@ -165,7 +157,6 @@
                             <span class="badge" onclick="addFilter('format', '${movie.format}')" style="cursor:pointer;" title="Filtrer på format">
                                 📽 ${movie.format}
                             </span>
-                            ${isLongFilm ? '<span class="badge long-film">⚠️ Langfilm gebyr</span>' : ''}
                         </div>
                         <p class="description">${movie.description || 'Ingen beskrivelse tilgængelig.'}</p>
                     </div>
@@ -173,7 +164,7 @@
 
                 <hr class="divider">
 
-              <div style="text-align:center; padding: 10px 0;">
+                <div style="text-align:center; padding: 10px 0;">
                  <button class="btn" style="padding: 14px 40px; font-size: 16px;" onclick="bookMovie(${movie.movieId})">
                     🎟 Køb billetter
                      </button>

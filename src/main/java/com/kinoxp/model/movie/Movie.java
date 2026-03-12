@@ -54,7 +54,6 @@ public class Movie {
         this.format = format;
         this.ageLimit = ageLimit;
         this.language = language;
-        this.description = description;
     }
 
     public Movie(String title, int durationInMinutes, AgeLimit ageLimit) {
@@ -85,14 +84,6 @@ public class Movie {
 
     public void setTitle(String title) {
         this.title = title;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
     }
 
     public int getReleaseYear() {

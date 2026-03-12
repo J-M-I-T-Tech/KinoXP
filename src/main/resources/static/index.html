@@ -14,12 +14,84 @@
     <span id="userName" style="display: none; color: #d32f2f; margin-left: 15px;"></span>
 </div>
 <div class="container">
-    <h1>Current Movies at KinoXP</h1>
+    <h1>Aktuelle film i KinoXP</h1>
+
+    <!--Admin ekstra knapper -->
+    <div id="adminPanel" style="display:none; margin-bottom: 20px;">
+        <button class="btn" onclick="showCreateMovie()">Opret ny film</button>
+        <button class="btn" onclick="showAllMovies()">Vis alle film</button>
+    </div>
+
+    <div id="createMovieForm" style="display:none; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); margin-bottom: 20px;">
+        <h2>Opret ny film</h2>
+        <form onsubmit="event.preventDefault(); createMovie();">
+            <label>Titel</label>
+            <input id="title" required>
+
+            <label>Beskrivelse</label>
+            <input id="beskrivelse" required>
+
+            <label>Genre</label>
+            <select id="genre">
+                <option value="GYSER">Gyser</option>
+                <option value="ROMANTISK">Romantisk</option>
+                <option value="ACTION">Action</option>
+                <option value="SCIENCE_FICTION">Science Fiction</option>
+            </select>
+
+            <label>Aldersgrænse</label>
+            <select id="ageLimit">
+                <option value="ALLE">Alle</option>
+                <option value="SYV_PLUS">7+</option>
+                <option value="ELLEVE_PLUS">11+</option>
+                <option value="FEMTEN_PLUS">15+</option>
+            </select>
+
+            <label>Sprog</label>
+            <select id="language">
+                <option value="DANSK">Dansk</option>
+                <option value="ENGELSK">Engelsk</option>
+            </select>
+
+            <label>Format</label>
+            <select id="format">
+                <option value="FORMAT_2D">2D</option>
+                <option value="FORMAT_3D">3D</option>
+            </select>
+
+            <label>Udgivelsesår</label>
+            <input id="releaseYear" type="number" min="1888" max="2100" required>
+
+            <label>Varighed (minutter)</label>
+            <input id="duration" type="number" min="1" required>
+
+            <button type="submit" class="btn">Opret film</button>
+        </form>
+    </div>
+
     <div id="active-filter"></div>
     <div id="movies-container"></div>
 </div>
 <script>
     const OMDB_API_KEY = '8e71e427';
+
+    function hideAll() {
+        document.getElementById("createMovieForm").style.display = "none";
+        document.getElementById("movies-container").style.display = "none";
+        document.getElementById("active-filter").style.display = "none";
+    }
+
+    function showCreateMovie() {
+        hideAll();
+        document.getElementById("createMovieForm").style.display = "block";
+    }
+
+    function showAllMovies() {
+        document.getElementById("createMovieForm").style.display = "none";
+        document.getElementById("movies-container").style.display = "block";
+        document.getElementById("active-filter").style.display = "block";
+        loadMovies();
+    }
 
     function bookMovie(movieId) {
         const user = localStorage.getItem('user');
@@ -59,15 +131,11 @@
             });
 
             if (response.ok) {
-
                 alert("Film oprettet!");
-
-                hideAll(); // skjuler form og film
-
-                document.getElementById("movies-container").style.display = "block";
-
-                loadMovies();
-
+                showAllMovies();
+            } else {
+                const errorText = await response.text();
+                alert("Fejl ved oprettelse af film: " + errorText);
             }
 
         } catch (error) {
@@ -98,6 +166,7 @@
             logoutLink.addEventListener('click', (e) => {
                 e.preventDefault();
                 localStorage.removeItem('user');
+                alert('Du er nu logget ud.');
                 window.location.href = 'index.html';
             });
         }
@@ -105,6 +174,10 @@
 
     function formatAgeLimit(ageLimit) {
         const map = {
+            'ALLE': 'Alle',
+            'SYV_PLUS': '7+',
+            'ELLEVE_PLUS': '11+',
+            'FEMTEN_PLUS': '15+',
             'ALL': 'Alle',
             'SEVEN_PLUS': '7+',
             'ELEVEN_PLUS': '11+',
@@ -115,21 +188,33 @@
     }
 
     function formatLanguage(lang) {
-        const map = { 'ENGLISH': '🌐 Engelsk', 'DANISH': '🌐 Dansk' };
+        const map = {
+            'DANSK': '🌐 Dansk',
+            'ENGELSK': '🌐 Engelsk',
+            'DANISH': '🌐 Dansk',
+            'ENGLISH': '🌐 Engelsk'
+        };
         return map[lang] || lang;
     }
 
     function formatFormat(format) {
-        const map = { 'TWO_DIMENSIONAL': '📽 2D', 'THREE_DIMENSIONAL': '📽 3D' };
+        const map = {
+            'FORMAT_2D': '📽 2D',
+            'FORMAT_3D': '📽 3D',
+            'TWO_DIMENSIONAL': '📽 2D',
+            'THREE_DIMENSIONAL': '📽 3D'
+        };
         return map[format] || format;
     }
 
     function formatGenre(genre) {
         const map = {
+            'GYSER': '🎬 Gyser',
+            'ROMANTISK': '🎬 Romantik',
             'ACTION': '🎬 Action',
+            'SCIENCE_FICTION': '🎬 Sci-Fi',
             'ROMANCE': '🎬 Romantik',
             'HORROR': '🎬 Gyser',
-            'SCIENCE_FICTION': '🎬 Sci-Fi',
             'COMEDY': '🎬 Komedie',
             'DRAMA': '🎬 Drama'
         };
@@ -207,7 +292,8 @@
                     </div>
                     <div style="display:flex; gap:10px; flex-shrink:0;">
                         <button class="btn btn-secondary" onclick="window.location.href='movie.html?movieId=${movie.movieId}'">Læs mere</button>
-                        <button class="btn" onclick="bookMovie(${movie.movieId})">Book Now</button>
+                        <button class="btn" onclick="bookMovie(${movie.movieId})">Bestil nu</button>
+                        ${isAdmin ? `<button class="btn" style="background: #555;" onclick="deleteMovie(${movie.movieId})">Slet film</button>` : ""}
                     </div>
                 `;
                 container.appendChild(card);
@@ -226,9 +312,10 @@
 
         if (response.ok) {
             alert("Film slettet");
-            loadMovies();
+            showAllMovies();
         } else {
-            alert("Kun admin kan slette film");
+            const errorText = await response.text();
+            alert("Kun admin kan slette film: " + errorText);
         }
     }
 

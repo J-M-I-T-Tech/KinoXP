@@ -149,6 +149,102 @@ input, select {
     background: #333;
 }
 
+/* --- Seat Grid --- */
+.seat-grid-container {
+    margin-top: 20px;
+    padding: 20px;
+    background: #eee;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.screen {
+    background: #333;
+    color: white;
+    padding: 5px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+}
+
+.seat-row {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 5px;
+}
+
+.seat {
+    width: 30px;
+    height: 30px;
+    margin: 3px;
+    background: #8bc34a;
+    border: 1px solid #558b2f;
+    border-radius: 5px 5px 0 0;
+    cursor: pointer;
+    font-size: 0.7em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.seat.cowboy {
+    background: #64dd17;
+    border-color: #33691e;
+}
+
+.seat.sofa {
+    background: #2e7d32;
+    border-color: #1b5e20;
+    color: white;
+}
+
+.seat.selected {
+    background: #ffeb3b !important;
+    border-color: #fbc02d !important;
+    color: black !important;
+}
+
+.seat.reserved {
+    background: #9e9e9e !important;
+    border-color: #616161 !important;
+    color: black !important;
+    cursor: not-allowed;
+}
+
+.seat:hover:not(.reserved) {
+    background: #cddc39;
+}
+
+.booking-summary {
+    margin-top: 20px;
+    padding: 15px;
+    border-top: 2px solid #d32f2f;
+}
+
+.booking-summary p {
+    font-size: 1.2em;
+    margin: 10px 0;
+}
+
+.legend {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 15px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.9em;
+}
+
+.legend-box {
+    width: 20px;
+    height: 20px;
+    border-radius: 3px;
+}
+
 /* --- Movie Detail Page --- */
 .movie-detail-container {
     max-width: 800px;
