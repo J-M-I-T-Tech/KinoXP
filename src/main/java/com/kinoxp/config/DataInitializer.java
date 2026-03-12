@@ -79,8 +79,8 @@ public class DataInitializer {
                         2019, Genre.ACTION, 132, Format.FORMAT_2D, AgeLimit.FEMTEN_PLUS, Language.ENGELSK));
 
                 // Theaters
-                Theater theater1 = theaterRepository.save(new Theater(null, "Small Theater", 20, 12));
-                Theater theater2 = theaterRepository.save(new Theater(null, "Large Theater", 25, 16));
+                Theater theater1 = theaterRepository.save(new Theater(null, "Stor sal", 20, 12));
+                Theater theater2 = theaterRepository.save(new Theater(null, "Lille sal", 25, 16));
 
                 // Seats
                 createSeatsForTheater(theater1, seatRepository);
