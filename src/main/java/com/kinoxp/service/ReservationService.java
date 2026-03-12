@@ -25,8 +25,8 @@ public class ReservationService {
     // US 3.2, 3.6, 3.7: Beregn totalpris inkl. standardpris, langfilm, rowFee og rabat
     private static final double STANDARD_TICKET_PRICE = 130.0;
     private static final double LONG_MOVIE_FEE = 20.0;
-    private static final double THREE_D_FEE = 10.0;
-    private static final double COWBOY_ROW_DISCOUNT = 30.0;
+    private static final double THREE_D_FEE = 30.0;
+    private static final double COWBOY_ROW_DISCOUNT = 15.0;
     private static final double SOFA_ROW_FEE = 25.0;
     private static final double RESERVATION_FEE = 5.0;
     private static final double GROUP_DISCOUNT_THRESHOLD = 10;

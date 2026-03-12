@@ -1,17 +1,16 @@
 spring:
-  application:
-    name: KinoXP
-
   datasource:
-    url: jdbc:mysql://localhost:3307/KinoXP
+    url: jdbc:mysql://127.0.0.1:3307/kinoxp?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Europe/Copenhagen
+    username: kino
+    password: kino
     driver-class-name: com.mysql.cj.jdbc.Driver
-    username: root
-    password: root
 
   jpa:
     hibernate:
       ddl-auto: create
-    defer-datasource-initialization: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
 
   sql:
     init:
