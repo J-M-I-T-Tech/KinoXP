@@ -119,10 +119,11 @@ public class DataInitializer {
                 List<Seat> theater1Seats = seatRepository.findAll().stream().filter(s -> s.getTheater().getTheaterId().equals(theater1.getTheaterId())).toList();
                 List<Seat> theater2Seats = seatRepository.findAll().stream().filter(s -> s.getTheater().getTheaterId().equals(theater2.getTheaterId())).toList();
 
-                User user1 = userRepository.save(new User(null, "Alice Jensen", LocalDate.of(1990, 5, 15), Role.CUSTOMER, "password123"));
-                User user2 = userRepository.save(new User(null, "Mikkel Hansen", LocalDate.of(1999, 10, 13), Role.EMPLOYEE, "password123"));
-                User user3 = userRepository.save(new User(null, "Sara Nielsen", LocalDate.of(1921, 1, 1), Role.ADMIN, "password123"));
+                User user1 = userRepository.save(new User(null, "Alice", LocalDate.of(1990, 5, 15), Role.CUSTOMER, "password123"));
+                User user2 = userRepository.save(new User(null, "Mikkel", LocalDate.of(1999, 10, 13), Role.EMPLOYEE, "password123"));
+                User user3 = userRepository.save(new User(null, "Sara", LocalDate.of(1921, 1, 1), Role.ADMIN, "password123"));
 
+<<<<<<< thor
                 // Extra users for traffic
                 User user4 = userRepository.save(new User(null, "Mette Frederiksen", LocalDate.of(1977, 11, 19), Role.CUSTOMER, "statsminister"));
                 User user5 = userRepository.save(new User(null, "Lars Løkke", LocalDate.of(1964, 5, 15), Role.CUSTOMER, "moderaterne"));
@@ -130,17 +131,20 @@ public class DataInitializer {
                 List<User> customers = List.of(user1, user4, user5, user6);
 
                 // Reservation 1: Alice Jensen (2 sæder)
+=======
+                // Reservation 1: Alice (2 sæder)
+>>>>>>> main
                 Reservation reservation1 = new Reservation(null, showing1, user1, LocalDateTime.now(), 200.0, BookingStatus.CONFIRMED, PaymentStatus.PAID);
                 reservation1.addReservedSeat(new ReservationSeat(null, reservation1, theater1Seats.get(0), 100.0)); // Sæde 1, Række 1
                 reservation1.addReservedSeat(new ReservationSeat(null, reservation1, theater1Seats.get(1), 100.0)); // Sæde 2, Række 1
                 reservationRepository.save(reservation1);
 
-                // Reservation 2: Mikkel Hansen (1 sæde)
+                // Reservation 2: Mikkel (1 sæde)
                 Reservation reservation2 = new Reservation(null, showing2, user2, LocalDateTime.now(), 100.0, BookingStatus.CONFIRMED, PaymentStatus.AWAITING);
                 reservation2.addReservedSeat(new ReservationSeat(null, reservation2, theater1Seats.get(2), 100.0)); // Sæde 3, Række 1
                 reservationRepository.save(reservation2);
 
-                // Reservation 3: Sara Nielsen (3 sæder i den store sal)
+                // Reservation 3: Sara (3 sæder i den store sal)
                 Reservation reservation3 = new Reservation(null, showing3, user3, LocalDateTime.now(), 300.0, BookingStatus.PENDING, PaymentStatus.AWAITING);
                 reservation3.addReservedSeat(new ReservationSeat(null, reservation3, theater2Seats.get(0), 100.0));
                 reservation3.addReservedSeat(new ReservationSeat(null, reservation3, theater2Seats.get(1), 100.0));
