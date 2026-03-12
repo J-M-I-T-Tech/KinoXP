@@ -87,13 +87,6 @@ public class Movie {
         this.title = title;
     }
 
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
 
     public int getReleaseYear() {
         return releaseYear;

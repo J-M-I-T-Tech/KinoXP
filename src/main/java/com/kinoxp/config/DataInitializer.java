@@ -122,6 +122,10 @@ public class DataInitializer {
                 User user1 = userRepository.save(new User(null, "Alice", LocalDate.of(1990, 5, 15), Role.CUSTOMER, "password123"));
                 User user2 = userRepository.save(new User(null, "Mikkel", LocalDate.of(1999, 10, 13), Role.EMPLOYEE, "password123"));
                 User user3 = userRepository.save(new User(null, "Sara", LocalDate.of(1921, 1, 1), Role.ADMIN, "password123"));
+                User user4 = userRepository.save(new User(null, "signe", LocalDate.of(1990, 5, 15), Role.CUSTOMER, "password123"));
+                User user5= userRepository.save(new User(null, "simon", LocalDate.of(1999, 10, 13), Role.EMPLOYEE, "password123"));
+                User user6 = userRepository.save(new User(null, "ian", LocalDate.of(1921, 1, 1), Role.ADMIN, "password123"));
+                List<User> users = List.of(user1, user2, user3, user4, user5, user6);
 
                 // Reservation 1: Alice (2 sæder)
                 Reservation reservation1 = new Reservation(null, showing1, user1, LocalDateTime.now(), 200.0, BookingStatus.CONFIRMED, PaymentStatus.PAID);
@@ -148,7 +152,7 @@ public class DataInitializer {
 
                 for (int j = 0; j < 15; j++) {
                     Showing showing = upcoming.get(random.nextInt(upcoming.size()));
-                    User user = customers.get(random.nextInt(customers.size()));
+                    User user = users.get(random.nextInt(users.size()));
                     Theater theater = showing.getTheater();
                     List<Seat> theaterSeats = seatRepository.findByTheater_TheaterId(theater.getTheaterId());
 
