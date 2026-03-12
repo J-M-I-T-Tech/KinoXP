@@ -47,6 +47,7 @@ public class Movie {
                  int durationInMinutes, Format format, AgeLimit ageLimit, Language language) {
         this.movieId = movieId;
         this.title = title;
+        this.description = description;
         this.releaseYear = releaseYear;
         this.genre = genre;
         this.durationInMinutes = durationInMinutes;
