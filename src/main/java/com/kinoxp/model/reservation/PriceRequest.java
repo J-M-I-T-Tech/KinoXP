@@ -1,18 +1,17 @@
 package com.kinoxp.model.reservation;
 
+import java.util.List;
 
 public class PriceRequest {
 
     private Long showingId;
-    private int numberOfTickets;
-    private int rowNumber;
+    private List<Long> seatIds;
 
     public PriceRequest() {}
 
-    public PriceRequest(Long showingId, int numberOfTickets, int rowNumber) {
+    public PriceRequest(Long showingId, List<Long> seatIds) {
         this.showingId = showingId;
-        this.numberOfTickets = numberOfTickets;
-        this.rowNumber = rowNumber;
+        this.seatIds = seatIds;
     }
 
     public Long getShowingId() {
@@ -23,19 +22,11 @@ public class PriceRequest {
         this.showingId = showingId;
     }
 
-    public int getNumberOfTickets() {
-        return numberOfTickets;
+    public List<Long> getSeatIds() {
+        return seatIds;
     }
 
-    public void setNumberOfTickets(int numberOfTickets) {
-        this.numberOfTickets = numberOfTickets;
-    }
-
-    public int getRowNumber() {
-        return rowNumber;
-    }
-
-    public void setRowNumber(int rowNumber) {
-        this.rowNumber = rowNumber;
+    public void setSeatIds(List<Long> seatIds) {
+        this.seatIds = seatIds;
     }
 }

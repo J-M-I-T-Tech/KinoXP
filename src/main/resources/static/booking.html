@@ -2,9 +2,250 @@
 <html lang="da">
 <head>
     <meta charset="UTF-8">
-    <title>Titel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reserver billetter - KinoXP</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<div class="container">
+    <a href="index.html" class="back-btn">← Afbryd</a>
+    <h1 id="booking-title">Reserver billetter</h1>
+    <div id="movie-info-short" style="text-align: center; margin-bottom: 20px;">
+        <!-- Film og tidspunkt indlæses her -->
+    </div>
 
+    <div class="seat-grid-container">
+        <div class="legend">
+            <div class="legend-item"><div class="legend-box" style="background: #8bc34a;"></div> Ledig</div>
+            <div class="legend-item"><div class="legend-box" style="background: #64dd17;"></div> Cowboy (billig)</div>
+            <div class="legend-item"><div class="legend-box" style="background: #2e7d32;"></div> Sofa (dyr)</div>
+            <div class="legend-item"><div class="legend-box" style="background: #ffeb3b;"></div> Valgt</div>
+            <div class="legend-item"><div class="legend-box" style="background: #9e9e9e;"></div> Optaget</div>
+        </div>
+        <div class="screen">LÆRRED</div>
+        <div id="seat-grid">
+            <!-- Sæder genereres her -->
+        </div>
+    </div>
+
+    <div class="booking-summary">
+        <p>Valgte sæder: <span id="selected-seats-list">-</span></p>
+        <p>Antal billetter: <span id="ticket-count">0</span></p>
+        <div id="price-breakdown" style="font-size: 0.9em; margin-top: 10px; border-top: 1px solid #ddd; padding-top: 10px; display: none;">
+            <p style="margin-bottom: 5px;"><strong>Pris-detaljer:</strong></p>
+            <ul id="breakdown-list" style="list-style: none; padding-left: 0; margin-bottom: 10px;"></ul>
+        </div>
+        <p><strong>Total pris: <span id="total-price">0</span> kr.</strong></p>
+        <div id="login-notice" style="color: #d32f2f; display: none; margin-bottom: 10px;">
+            Du skal være logget ind for at bekræfte reservationen.
+        </div>
+        <button id="confirm-booking-btn" class="btn" style="width: 100%; font-size: 1.2em;" disabled>Bekræft reservation</button>
+    </div>
+</div>
+
+<script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const movieId = urlParams.get('movieId');
+    const showingId = urlParams.get('showingId');
+
+    if (!movieId || !showingId) {
+        window.location.href = 'index.html';
+    }
+
+    let selectedSeats = [];
+    let theaterId = null;
+    let movieData = null;
+    let currentShowing = null;
+
+    async function loadBookingData() {
+        try {
+            // 1. Hent film og forestilling
+            const movieResp = await fetch(`/kino/movies/${movieId}`);
+            movieData = await movieResp.json();
+
+            // Vi har brug for theaterId fra showing
+            const showingsResp = await fetch(`/kino/showings/movie/${movieId}`);
+            const showings = await showingsResp.json();
+            currentShowing = showings.find(s => s.showingId == showingId);
+
+            if (!currentShowing) throw new Error("Forestilling ikke fundet");
+            theaterId = currentShowing.theaterId;
+
+            const startTime = new Date(currentShowing.startTime);
+            const dateStr = startTime.toLocaleDateString('da-DK', { weekday: 'long', day: 'numeric', month: 'long' });
+            const timeStr = startTime.toLocaleTimeString('da-DK', { hour: '2-digit', minute: '2-digit' });
+
+            document.getElementById('booking-title').textContent = `Reserver billetter: ${movieData.title}`;
+            document.getElementById('movie-info-short').innerHTML = `
+                <p><strong>${dateStr} kl. ${timeStr}</strong></p>
+                <p>Sal: ${currentShowing.theaterName}</p>
+            `;
+
+            // 2. Hent alle sæder for salen
+            const seatsResp = await fetch(`/kino/seats/theater/${theaterId}`);
+            const allSeats = await seatsResp.json();
+
+            // 3. Hent reserverede sæder
+            const reservedResp = await fetch(`/kino/reservations/showing/${showingId}/reserved-seats`);
+            const reservedSeatIds = await reservedResp.json();
+
+            renderSeatGrid(allSeats, reservedSeatIds);
+
+        } catch (error) {
+            console.error('Fejl ved indlæsning af bookingdata:', error);
+            alert("Kunne ikke indlæse data for denne forestilling.");
+        }
+    }
+
+    function renderSeatGrid(allSeats, reservedSeatIds) {
+        const grid = document.getElementById('seat-grid');
+        grid.innerHTML = '';
+
+        // Gruppér efter række
+        const rows = {};
+        allSeats.forEach(seat => {
+            if (!rows[seat.rowNumber]) rows[seat.rowNumber] = [];
+            rows[seat.rowNumber].push(seat);
+        });
+
+        // Sorter rækker og sæder
+        const sortedRowNums = Object.keys(rows).sort((a, b) => a - b);
+
+        sortedRowNums.forEach(rowNum => {
+            const rowDiv = document.createElement('div');
+            rowDiv.className = 'seat-row';
+
+            // Label for række
+            const rowLabel = document.createElement('span');
+            rowLabel.style.width = '30px';
+            rowLabel.style.lineHeight = '30px';
+            rowLabel.textContent = `R${rowNum}`;
+            rowDiv.appendChild(rowLabel);
+
+            rows[rowNum].sort((a, b) => a.seatNumber - b.seatNumber).forEach(seat => {
+                const isReserved = reservedSeatIds.includes(seat.seatId);
+                const seatDiv = document.createElement('div');
+
+                let seatTypeClass = '';
+                if (seat.rowNumber <= 2) {
+                    seatTypeClass = 'cowboy';
+                } else if (currentShowing.totalRows > 15 && seat.rowNumber > currentShowing.totalRows - 2) {
+                    seatTypeClass = 'sofa';
+                }
+
+                seatDiv.className = `seat ${isReserved ? 'reserved' : ''} ${seatTypeClass}`;
+                seatDiv.textContent = seat.seatNumber;
+                seatDiv.title = `Række ${seat.rowNumber}, Sæde ${seat.seatNumber}`;
+
+                if (!isReserved) {
+                    seatDiv.addEventListener('click', () => toggleSeat(seat, seatDiv));
+                }
+
+                rowDiv.appendChild(seatDiv);
+            });
+            grid.appendChild(rowDiv);
+        });
+    }
+
+    async function toggleSeat(seat, element) {
+        const index = selectedSeats.findIndex(s => s.seatId === seat.seatId);
+        if (index > -1) {
+            selectedSeats.splice(index, 1);
+            element.classList.remove('selected');
+        } else {
+            selectedSeats.push(seat);
+            element.classList.add('selected');
+        }
+
+        updateSummary();
+    }
+
+    async function updateSummary() {
+        const seatsList = document.getElementById('selected-seats-list');
+        const countSpan = document.getElementById('ticket-count');
+        const priceSpan = document.getElementById('total-price');
+        const breakdownDiv = document.getElementById('price-breakdown');
+        const breakdownList = document.getElementById('breakdown-list');
+        const confirmBtn = document.getElementById('confirm-booking-btn');
+
+        if (selectedSeats.length === 0) {
+            seatsList.textContent = '-';
+            countSpan.textContent = '0';
+            priceSpan.textContent = '0';
+            breakdownDiv.style.display = 'none';
+            confirmBtn.disabled = true;
+            return;
+        }
+
+        seatsList.textContent = selectedSeats.map(s => `R${s.rowNumber}-S${s.seatNumber}`).join(', ');
+        countSpan.textContent = selectedSeats.length;
+
+        // Beregn pris via backend
+        try {
+            const response = await fetch('/kino/reservations/price', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    showingId: showingId,
+                    seatIds: selectedSeats.map(s => s.seatId)
+                })
+            });
+            const priceData = await response.json();
+            priceSpan.textContent = priceData.totalPrice;
+
+            // Opdater breakdown
+            breakdownList.innerHTML = '';
+            priceData.breakdown.forEach(item => {
+                const li = document.createElement('li');
+                li.style.display = 'flex';
+                li.style.justifyContent = 'space-between';
+                li.innerHTML = `<span>${item.label}</span><span>${item.amount.toFixed(2)} kr.</span>`;
+                breakdownList.appendChild(li);
+            });
+            breakdownDiv.style.display = 'block';
+
+            confirmBtn.disabled = false;
+        } catch (error) {
+            console.error('Fejl ved prisberegning:', error);
+        }
+    }
+
+    document.getElementById('confirm-booking-btn').addEventListener('click', async () => {
+        const userJson = localStorage.getItem('user');
+        if (!userJson) {
+            document.getElementById('login-notice').style.display = 'block';
+            return;
+        }
+
+        const user = JSON.parse(userJson);
+        const request = {
+            showingId: parseInt(showingId),
+            customerName: user.name,
+            seatIds: selectedSeats.map(s => s.seatId),
+            userId: user.userId
+        };
+
+        try {
+            const response = await fetch('/kino/reservations', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(request)
+            });
+
+            if (response.ok) {
+                alert('Reservation gennemført!');
+                window.location.href = 'index.html';
+            } else {
+                const errorText = await response.text();
+                alert('Fejl ved reservation: ' + errorText);
+            }
+        } catch (error) {
+            console.error('Booking fejl:', error);
+            alert('Der opstod en fejl under reservationen.');
+        }
+    });
+
+    loadBookingData();
+</script>
 </body>
 </html>

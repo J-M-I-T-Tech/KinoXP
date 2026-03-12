@@ -2,9 +2,101 @@
 <html lang="da">
 <head>
     <meta charset="UTF-8">
-    <title>Titel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Filmdetaljer - KinoXP</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<div class="container">
+    <a href="index.html" class="back-btn">← Tilbage</a>
+    <div id="movie-content" class="movie-details-container">
+        <!-- Film information vil blive indlæst her -->
+    </div>
+    <div class="showings-container">
+        <h2>Kommende forestillinger</h2>
+        <div id="showings-list" class="showing-list">
+            <!-- Forestillinger vil blive indlæst her -->
+        </div>
+    </div>
+</div>
 
+<script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const movieId = urlParams.get('movieId');
+
+    if (!movieId) {
+        window.location.href = 'index.html';
+    }
+
+    function formatEnum(str) {
+        if (!str) return '';
+        return str.split('_')
+                  .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+                  .join(' ');
+    }
+
+    async function loadMovieDetails() {
+        try {
+            const response = await fetch(`/kino/movies/${movieId}`);
+            if (!response.ok) throw new Error('Film ikke fundet');
+            const movie = await response.json();
+
+            const content = document.getElementById('movie-content');
+            content.innerHTML = `
+                <div class="movie-details-header">
+                    <h1 class="movie-title">${movie.title} (${movie.releaseYear})</h1>
+                </div>
+                <div class="movie-details-info">
+                    <p><strong>Beskrivelse:</strong><br>${movie.Description || 'Ingen beskrivelse tilgængelig.'}</p>
+                    <p><strong>Genre:</strong> ${formatEnum(movie.genre)}</p>
+                    <p><strong>Varighed:</strong> ${movie.durationInMinutes} min</p>
+                    <p><strong>Aldersgrænse:</strong> ${formatEnum(movie.ageLimit)}</p>
+                    <p><strong>Sprog:</strong> ${formatEnum(movie.language)}</p>
+                    <p><strong>Format:</strong> ${formatEnum(movie.format)}</p>
+                </div>
+            `;
+            document.title = `${movie.title} - KinoXP`;
+        } catch (error) {
+            console.error('Fejl ved indlæsning af film:', error);
+            document.getElementById('movie-content').innerHTML = '<p>Kunne ikke indlæse filmoplysninger.</p>';
+        }
+    }
+
+    async function loadShowings() {
+        try {
+            const response = await fetch(`/kino/showings/movie/${movieId}`);
+            const showings = await response.json();
+            const container = document.getElementById('showings-list');
+
+            if (showings.length === 0) {
+                container.innerHTML = '<p>Der er ingen kommende forestillinger for denne film.</p>';
+                return;
+            }
+
+            showings.forEach(showing => {
+                const startTime = new Date(showing.startTime);
+                const dateStr = startTime.toLocaleDateString('da-DK', { weekday: 'long', day: 'numeric', month: 'long' });
+                const timeStr = startTime.toLocaleTimeString('da-DK', { hour: '2-digit', minute: '2-digit' });
+
+                const item = document.createElement('div');
+                item.className = 'showing-item';
+                item.innerHTML = `
+                    <div class="showing-info">
+                        <strong>${formatEnum(dateStr)} kl. ${timeStr}</strong><br>
+                        <span>Sal: ${showing.theaterName}</span>
+                    </div>
+                    <button class="btn" onclick="window.location.href='booking.html?movieId=${movieId}&showingId=${showing.showingId}'">Bestil billet</button>
+                `;
+                container.appendChild(item);
+            });
+        } catch (error) {
+            console.error('Fejl ved indlæsning af forestillinger:', error);
+            document.getElementById('showings-list').innerHTML = '<p>Kunne ikke indlæse forestillinger.</p>';
+        }
+    }
+
+    loadMovieDetails();
+    loadShowings();
+</script>
 </body>
 </html>
