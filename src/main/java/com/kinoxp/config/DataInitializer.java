@@ -24,6 +24,7 @@ import java.util.Random;
 
 @Configuration
 public class DataInitializer {
+    //momo
 
     @Bean
     public CommandLineRunner initData(TheaterRepository theaterRepository,
