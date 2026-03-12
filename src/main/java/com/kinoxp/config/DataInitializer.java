@@ -123,17 +123,7 @@ public class DataInitializer {
                 User user2 = userRepository.save(new User(null, "Mikkel", LocalDate.of(1999, 10, 13), Role.EMPLOYEE, "password123"));
                 User user3 = userRepository.save(new User(null, "Sara", LocalDate.of(1921, 1, 1), Role.ADMIN, "password123"));
 
-<<<<<<< thor
-                // Extra users for traffic
-                User user4 = userRepository.save(new User(null, "Mette Frederiksen", LocalDate.of(1977, 11, 19), Role.CUSTOMER, "statsminister"));
-                User user5 = userRepository.save(new User(null, "Lars Løkke", LocalDate.of(1964, 5, 15), Role.CUSTOMER, "moderaterne"));
-                User user6 = userRepository.save(new User(null, "Søren Pape", LocalDate.of(1971, 12, 31), Role.CUSTOMER, "konservative"));
-                List<User> customers = List.of(user1, user4, user5, user6);
-
-                // Reservation 1: Alice Jensen (2 sæder)
-=======
                 // Reservation 1: Alice (2 sæder)
->>>>>>> main
                 Reservation reservation1 = new Reservation(null, showing1, user1, LocalDateTime.now(), 200.0, BookingStatus.CONFIRMED, PaymentStatus.PAID);
                 reservation1.addReservedSeat(new ReservationSeat(null, reservation1, theater1Seats.get(0), 100.0)); // Sæde 1, Række 1
                 reservation1.addReservedSeat(new ReservationSeat(null, reservation1, theater1Seats.get(1), 100.0)); // Sæde 2, Række 1
