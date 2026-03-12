@@ -20,9 +20,10 @@
     <div id="adminPanel" style="display:none; margin-bottom: 20px;">
         <button class="btn" onclick="showCreateMovie()">Opret ny film</button>
         <button class="btn" onclick="showAllMovies()">Vis alle film</button>
+        <button class="btn" onclick="showShowingsAdmin()">Administrer visninger</button>
     </div>
 
-    <div id="createMovieForm" style="display:none; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); margin-bottom: 20px;">
+    <div id="createMovieForm" style="display:none;">
         <h2>Opret ny film</h2>
         <form onsubmit="event.preventDefault(); createMovie();">
             <label>Titel</label>
@@ -37,14 +38,17 @@
                 <option value="ROMANTISK">Romantisk</option>
                 <option value="ACTION">Action</option>
                 <option value="SCIENCE_FICTION">Science Fiction</option>
+                <option value="KOMEDIE">Komedie</option>
+                <option value="DRAMA">Drama</option>
             </select>
 
             <label>Aldersgrænse</label>
             <select id="ageLimit">
-                <option value="ALLE">Alle</option>
+                <option value="ALL">Alle</option>
                 <option value="SYV_PLUS">7+</option>
                 <option value="ELLEVE_PLUS">11+</option>
                 <option value="FEMTEN_PLUS">15+</option>
+                <option value="ATTEN_PLUS">18+</option>
             </select>
 
             <label>Sprog</label>
@@ -55,8 +59,8 @@
 
             <label>Format</label>
             <select id="format">
-                <option value="FORMAT_2D">2D</option>
-                <option value="FORMAT_3D">3D</option>
+                <option value="TWO_DIMENSIONAL">2D</option>
+                <option value="THREE_DIMENSIONAL">3D</option>
             </select>
 
             <label>Udgivelsesår</label>
@@ -69,6 +73,37 @@
         </form>
     </div>
 
+    <div id="showingsAdminPanel" style="display:none;">
+        <h2>Administrer film i sale</h2>
+
+        <div>
+            <label>Vælg film:</label>
+            <select id="showingMovieSelect" onchange="loadShowingsForMovie()">
+                <option value="">-- Vælg en film --</option>
+            </select>
+        </div>
+
+        <div id="showingsTable" style="display:none;">
+            <h3>Visninger</h3>
+            <table class="showings-admin-table">
+                <thead><tr>
+                    <th>Film</th>
+                    <th>Sal</th>
+                    <th>Start tid</th>
+                    <th>Slut tid</th>
+                    <th>Status</th>
+                </tr>
+                </thead>
+                <tbody id="showingsTableBody">
+                </tbody>
+            </table>
+        </div>
+
+        <div id="noShowings" style="display:none;">
+            Ingen visninger for denne film.
+        </div>
+    </div>
+
     <div id="active-filter"></div>
     <div id="movies-container"></div>
 </div>
@@ -79,6 +114,7 @@
         document.getElementById("createMovieForm").style.display = "none";
         document.getElementById("movies-container").style.display = "none";
         document.getElementById("active-filter").style.display = "none";
+        document.getElementById("showingsAdminPanel").style.display = "none";
     }
 
     function showCreateMovie() {
@@ -90,7 +126,14 @@
         document.getElementById("createMovieForm").style.display = "none";
         document.getElementById("movies-container").style.display = "block";
         document.getElementById("active-filter").style.display = "block";
+        document.getElementById("showingsAdminPanel").style.display = "none";
         loadMovies();
+    }
+
+    function showShowingsAdmin() {
+        hideAll();
+        document.getElementById("showingsAdminPanel").style.display = "block";
+        loadMoviesForShowingsAdmin();
     }
 
     function bookMovie(movieId) {
@@ -104,7 +147,6 @@
     }
 
     async function createMovie() {
-
         const user = JSON.parse(localStorage.getItem("user"));
         const adminUserId = user.userId;
 
@@ -118,10 +160,8 @@
             durationInMinutes: parseInt(document.getElementById("duration").value),
             releaseYear: parseInt(document.getElementById("releaseYear").value)
         };
-        console.log(movie);
 
         try {
-
             const response = await fetch(`/kino/movies?userId=${adminUserId}`, {
                 method: "POST",
                 headers: {
@@ -132,12 +172,12 @@
 
             if (response.ok) {
                 alert("Film oprettet!");
+                document.getElementById("createMovieForm").reset();
                 showAllMovies();
             } else {
                 const errorText = await response.text();
                 alert("Fejl ved oprettelse af film: " + errorText);
             }
-
         } catch (error) {
             console.error("Fejl ved oprettelse af film:", error);
         }
@@ -158,9 +198,8 @@
             userName.style.display = 'inline';
             userName.textContent = `Logget ind som: ${userData.name}`;
 
-            //Tjekker man er logget ind som admin
             if (userData.role === "ADMIN") {
-                adminPanel.style.display = "block";
+                document.getElementById("adminPanel").style.display = "block";
             }
 
             logoutLink.addEventListener('click', (e) => {
@@ -174,15 +213,11 @@
 
     function formatAgeLimit(ageLimit) {
         const map = {
-            'ALLE': 'Alle',
+            'ALL': 'Alle',
             'SYV_PLUS': '7+',
             'ELLEVE_PLUS': '11+',
             'FEMTEN_PLUS': '15+',
-            'ALL': 'Alle',
-            'SEVEN_PLUS': '7+',
-            'ELEVEN_PLUS': '11+',
-            'FIFTEEN_PLUS': '15+',
-            'EIGHTEEN_PLUS': '18+'
+            'ATTEN_PLUS': '18+'
         };
         return map[ageLimit] || ageLimit;
     }
@@ -190,9 +225,7 @@
     function formatLanguage(lang) {
         const map = {
             'DANSK': '🌐 Dansk',
-            'ENGELSK': '🌐 Engelsk',
-            'DANISH': '🌐 Dansk',
-            'ENGLISH': '🌐 Engelsk'
+            'ENGELSK': '🌐 Engelsk'
         };
         return map[lang] || lang;
     }
@@ -200,9 +233,7 @@
     function formatFormat(format) {
         const map = {
             'FORMAT_2D': '📽 2D',
-            'FORMAT_3D': '📽 3D',
-            'TWO_DIMENSIONAL': '📽 2D',
-            'THREE_DIMENSIONAL': '📽 3D'
+            'FORMAT_3D': '📽 3D'
         };
         return map[format] || format;
     }
@@ -213,9 +244,7 @@
             'ROMANTISK': '🎬 Romantik',
             'ACTION': '🎬 Action',
             'SCIENCE_FICTION': '🎬 Sci-Fi',
-            'ROMANCE': '🎬 Romantik',
-            'HORROR': '🎬 Gyser',
-            'COMEDY': '🎬 Komedie',
+            'KOMEDIE': '🎬 Komedie',
             'DRAMA': '🎬 Drama'
         };
         return map[genre] || '🎬 ' + genre;
@@ -271,6 +300,7 @@
             }
 
             const container = document.getElementById('movies-container');
+            container.innerHTML = '';
 
             for (const movie of movies) {
                 const posterUrl = await getPoster(movie.title, movie.releaseYear);
@@ -302,8 +332,75 @@
             console.error('Error loading movies:', error);
         }
     }
-    async function deleteMovie(movieId) {
 
+    async function loadMoviesForShowingsAdmin() {
+        try {
+            const response = await fetch('/kino/movies');
+            const movies = await response.json();
+
+            const select = document.getElementById('showingMovieSelect');
+            select.innerHTML = '<option value="">-- Vælg en film --</option>';
+            movies.forEach(movie => {
+                const option = document.createElement('option');
+                option.value = movie.movieId;
+                option.textContent = movie.title;
+                select.appendChild(option);
+            });
+        } catch (error) {
+            console.error('Fejl ved hentning af film:', error);
+        }
+    }
+
+    async function loadShowingsForMovie() {
+        const movieId = document.getElementById('showingMovieSelect').value;
+
+        if (!movieId) {
+            document.getElementById('showingsTable').style.display = 'none';
+            document.getElementById('noShowings').style.display = 'none';
+            return;
+        }
+
+        try {
+            const response = await fetch(`/kino/showings/${movieId}`);
+            const showings = await response.json();
+
+            const tbody = document.getElementById('showingsTableBody');
+            tbody.innerHTML = '';
+
+            if (showings.length === 0) {
+                document.getElementById('showingsTable').style.display = 'none';
+                document.getElementById('noShowings').style.display = 'block';
+                return;
+            }
+
+            showings.forEach(showing => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${showing.movieTitle}</td>
+                    <td>${showing.theaterName}</td>
+                    <td>${formatDateTime(showing.startTime)}</td>
+                    <td>${formatDateTime(showing.endTime)}</td>
+                    <td><span class="status-badge ${showing.showingStatus === 'UPCOMING' ? 'status-upcoming' : 'status-active'}">
+                        ${showing.showingStatus === 'UPCOMING' ? 'Kommende' : 'Aktiv'}
+                    </span></td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            document.getElementById('showingsTable').style.display = 'block';
+            document.getElementById('noShowings').style.display = 'none';
+        } catch (error) {
+            console.error('Fejl ved hentning af visninger:', error);
+            document.getElementById('noShowings').style.display = 'block';
+        }
+    }
+
+    function formatDateTime(dateTime) {
+        const date = new Date(dateTime);
+        return date.toLocaleDateString('da-DK') + ' ' + date.toLocaleTimeString('da-DK', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    async function deleteMovie(movieId) {
         const user = JSON.parse(localStorage.getItem("user"));
 
         const response = await fetch(`/kino/movies/${movieId}?adminUserId=${user.userId}`, {
