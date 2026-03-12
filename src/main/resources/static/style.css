@@ -389,3 +389,56 @@ input, select {
     text-align: left;
 }
 
+#showingsAdminPanel {
+    margin-top: 30px;
+    padding: 20px;
+    background: #f9f9f9;
+    border-radius: 8px;
+}
+
+#showingsAdminPanel select {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 20px;
+}
+
+.showings-admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    margin-top: 15px;
+}
+
+.showings-admin-table th,
+.showings-admin-table td {
+    padding: 12px;
+    text-align: left;
+    border: 1px solid #ddd;
+}
+
+.showings-admin-table th {
+    background: #d32f2f;
+    color: white;
+}
+
+.status-badge {
+    padding: 5px 10px;
+    border-radius: 3px;
+    color: white;
+    font-size: 0.85em;
+}
+
+.status-upcoming {
+    background: #4CAF50;
+}
+
+.status-active {
+    background: #ff9800;
+}
+
+#noShowings {
+    color: #888;
+    font-style: italic;
+    margin-top: 20px;
+}
+
