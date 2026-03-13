@@ -16,4 +16,4 @@ EXPOSE 8080
 
 
 #Det er kommandoen man skriver i terminalen, som kører når containeren starter
-ENTRYPOINT ["java", "-jar", "app.jar" ]
+ENTRYPOINT ["java", "-jar", "app.jar"]

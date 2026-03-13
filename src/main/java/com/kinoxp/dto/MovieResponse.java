@@ -14,6 +14,7 @@ public record MovieResponse(
         int durationInMinutes,
         Format format,
         AgeLimit ageLimit,
-        Language language
+        Language language,
+        String description
 ) {
 }

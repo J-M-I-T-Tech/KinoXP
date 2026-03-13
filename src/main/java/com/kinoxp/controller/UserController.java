@@ -29,8 +29,15 @@ public class UserController {
 
     // Opret bruger
     @PostMapping
-    public User createUser(@RequestBody UserRegistrationRequest request) {
-        return userService.createUser(request);
+    public ResponseEntity<?> createUser(@RequestBody UserRegistrationRequest request) {
+        try {
+            User user = userService.createUser(request);
+            return ResponseEntity.ok(user);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(e.getMessage());
+        }
     }
 
     // Login

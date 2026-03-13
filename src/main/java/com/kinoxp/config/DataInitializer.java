@@ -55,33 +55,33 @@ public class DataInitializer {
                         "I en postapokalyptisk ørken slår Max sig sammen med Furiosa for at flygte fra en tyrannisk krigsherre i et hæsblæsende biljagt-eventyr.",
                         2015, Genre.ACTION, 120, Format.FORMAT_2D, AgeLimit.FEMTEN_PLUS, Language.ENGELSK));
 
-                Movie movie5 = movieRepository.save(new Movie(null, "Badehotellet: Special",
-                        "En særlig historie fra det populære danske univers hvor gæster og personale på badehotellet oplever nye dramaer, kærlighed og hemmeligheder.",
-                        2022, Genre.ROMANTISK, 95, Format.FORMAT_2D, AgeLimit.ALLE, Language.DANSK));
+                Movie movie5 = movieRepository.save(new Movie(null, "Interstellar",
+                        "I en fremtid hvor Jorden er ved at blive ubeboelig, rejser et hold astronauter gennem et ormehul i søgen efter et nyt hjem til menneskeheden.",
+                        2014, Genre.SCIENCE_FICTION, 169, Format.FORMAT_2D, AgeLimit.ELLEVE_PLUS, Language.ENGELSK));
 
-                Movie movie6 = movieRepository.save(new Movie(null, "Planet X",
-                        "Et hold astronauter rejser til en mystisk planet i udkanten af solsystemet og opdager en trussel der kan ændre menneskehedens fremtid.",
-                        2024, Genre.SCIENCE_FICTION, 132, Format.FORMAT_2D, AgeLimit.ELLEVE_PLUS, Language.ENGELSK));
+                Movie movie6 = movieRepository.save(new Movie(null, "The Godfather",
+                        "Den aldrende overhoved for en kriminel dynasti overdrager kontrollen med sit imperium til sin modvillige søn.",
+                        1972, Genre.ACTION, 175, Format.FORMAT_2D, AgeLimit.FEMTEN_PLUS, Language.ENGELSK));
 
-                Movie movie7 = movieRepository.save(new Movie(null, "Night Train",
-                        "En natlig togrejse udvikler sig til et farligt opgør, da en passager opdager en kriminel plan ombord på toget.",
-                        2021, Genre.ACTION, 110, Format.FORMAT_2D, AgeLimit.SYV_PLUS, Language.DANSK));
+                Movie movie7 = movieRepository.save(new Movie(null, "The Dark Knight",
+                        "Da truslen kendt som Jokeren skaber kaos i Gotham, må Batman acceptere en af de største psykologiske og fysiske prøvelser i sin kamp mod uretfærdighed.",
+                        2008, Genre.ACTION, 152, Format.FORMAT_2D, AgeLimit.ELLEVE_PLUS, Language.ENGELSK));
 
-                Movie movie8 = movieRepository.save(new Movie(null, "Haunted Hall",
-                        "En gruppe studerende undersøger et gammelt kollegium der siges at være hjemsøgt – men de opdager snart at legenderne er virkelige.",
-                        2019, Genre.GYSER, 99, Format.FORMAT_2D, AgeLimit.FEMTEN_PLUS, Language.ENGELSK));
+                Movie movie8 = movieRepository.save(new Movie(null, "Pulp Fiction",
+                        "Livet for to lejemordere, en bokser, en gangsters kone og et par småforbrydere flettes sammen i fire fortællinger om vold og forløsning.",
+                        1994, Genre.ACTION, 154, Format.FORMAT_2D, AgeLimit.FEMTEN_PLUS, Language.ENGELSK));
 
                 Movie movie9 = movieRepository.save(new Movie(null, "Titanic",
                         "En fattig kunstner og en rig kvinde forelsker sig ombord på det luksuriøse skib Titanic, men deres kærlighed sættes på prøve da skibet rammer et isbjerg.",
                         1997, Genre.ROMANTISK, 195, Format.FORMAT_2D, AgeLimit.ELLEVE_PLUS, Language.ENGELSK));
 
-                Movie movie10 = movieRepository.save(new Movie(null, "Druk",
-                        "Fire gymnasielærere tester en teori om at holde en konstant promille i løbet af dagen for at forbedre deres liv – med uforudsete konsekvenser.",
-                        2020, Genre.ACTION, 117, Format.FORMAT_2D, AgeLimit.ELLEVE_PLUS, Language.DANSK));
+                Movie movie10 = movieRepository.save(new Movie(null, "Parasite",
+                        "Grådighed og klasseskel truer det nyligt dannede forhold mellem den velhavende Park-familie og den fattige Kim-klan.",
+                        2019, Genre.ACTION, 132, Format.FORMAT_2D, AgeLimit.FEMTEN_PLUS, Language.ENGELSK));
 
                 // Theaters
-                Theater theater1 = theaterRepository.save(new Theater(null, "Small Theater", 20, 12));
-                Theater theater2 = theaterRepository.save(new Theater(null, "Large Theater", 25, 16));
+                Theater theater1 = theaterRepository.save(new Theater(null, "Stor sal", 20, 12));
+                Theater theater2 = theaterRepository.save(new Theater(null, "Lille sal", 25, 16));
 
                 // Seats
                 createSeatsForTheater(theater1, seatRepository);
@@ -120,21 +120,12 @@ public class DataInitializer {
                 List<Seat> theater1Seats = seatRepository.findAll().stream().filter(s -> s.getTheater().getTheaterId().equals(theater1.getTheaterId())).toList();
                 List<Seat> theater2Seats = seatRepository.findAll().stream().filter(s -> s.getTheater().getTheaterId().equals(theater2.getTheaterId())).toList();
 
-                User user1 = userRepository.save(new User(null, "Alice", LocalDate.of(1990, 5, 15), Role.CUSTOMER, "password123"));
-                User user2 = userRepository.save(new User(null, "Mikkel", LocalDate.of(1999, 10, 13), Role.EMPLOYEE, "password123"));
-                User user3 = userRepository.save(new User(null, "Sara", LocalDate.of(1921, 1, 1), Role.ADMIN, "password123"));
+                User user1 = userRepository.save(new User(null, "Alice", LocalDate.of(1990, 5, 15), Role.CUSTOMER, "123"));
+                User user2 = userRepository.save(new User(null, "Mikkel", LocalDate.of(1999, 10, 13), Role.EMPLOYEE, "123"));
+                User user3 = userRepository.save(new User(null, "Sara", LocalDate.of(1921, 1, 1), Role.ADMIN, "123"));
+                List<User> users = List.of(user1, user2, user3);
 
-<<<<<<< thor
-                // Extra users for traffic
-                User user4 = userRepository.save(new User(null, "Mette Frederiksen", LocalDate.of(1977, 11, 19), Role.CUSTOMER, "statsminister"));
-                User user5 = userRepository.save(new User(null, "Lars Løkke", LocalDate.of(1964, 5, 15), Role.CUSTOMER, "moderaterne"));
-                User user6 = userRepository.save(new User(null, "Søren Pape", LocalDate.of(1971, 12, 31), Role.CUSTOMER, "konservative"));
-                List<User> customers = List.of(user1, user4, user5, user6);
-
-                // Reservation 1: Alice Jensen (2 sæder)
-=======
                 // Reservation 1: Alice (2 sæder)
->>>>>>> main
                 Reservation reservation1 = new Reservation(null, showing1, user1, LocalDateTime.now(), 200.0, BookingStatus.CONFIRMED, PaymentStatus.PAID);
                 reservation1.addReservedSeat(new ReservationSeat(null, reservation1, theater1Seats.get(0), 100.0)); // Sæde 1, Række 1
                 reservation1.addReservedSeat(new ReservationSeat(null, reservation1, theater1Seats.get(1), 100.0)); // Sæde 2, Række 1
@@ -159,7 +150,7 @@ public class DataInitializer {
 
                 for (int j = 0; j < 15; j++) {
                     Showing showing = upcoming.get(random.nextInt(upcoming.size()));
-                    User user = customers.get(random.nextInt(customers.size()));
+                    User user = users.get(random.nextInt(users.size()));
                     Theater theater = showing.getTheater();
                     List<Seat> theaterSeats = seatRepository.findByTheater_TheaterId(theater.getTheaterId());
 

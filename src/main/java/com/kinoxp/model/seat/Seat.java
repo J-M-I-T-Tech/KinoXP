@@ -4,7 +4,7 @@ import com.kinoxp.model.theater.Theater;
 import jakarta.persistence.*;
 
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"theater_id", "rowNumber", "seatNumber"}))
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"theater_id", "row_no", "seat_no"}))
 public class Seat {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -14,7 +14,10 @@ public class Seat {
     @JoinColumn(name = "theater_id")
     private Theater theater;
 
+    @Column(name = "seat_no")
     private int seatNumber;
+
+    @Column(name = "row_no")
     private int rowNumber;
 
     public Seat() {}

@@ -95,7 +95,8 @@ public class MovieService {
                 movie.getDurationInMinutes(),
                 movie.getFormat(),
                 movie.getAgeLimit(),
-                movie.getLanguage()
+                movie.getLanguage(),
+                movie.getDescription()
         );
     }
 }

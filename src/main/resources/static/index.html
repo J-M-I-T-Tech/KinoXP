@@ -17,79 +17,123 @@
     <h1>Aktuelle film i KinoXP</h1>
 
     <!--Admin ekstra knapper -->
-    <div id="adminPanel" style="display:none">
-
+    <div id="adminPanel" style="display:none; margin-bottom: 20px;">
         <button class="btn" onclick="showCreateMovie()">Opret ny film</button>
         <button class="btn" onclick="showAllMovies()">Vis alle film</button>
-
+        <button class="btn" onclick="showShowingsAdmin()">Administrer visninger</button>
     </div>
 
-    <div id="createMovieForm" style="display:none">
-
+    <div id="createMovieForm" style="display:none;">
         <h2>Opret ny film</h2>
+        <form onsubmit="event.preventDefault(); createMovie();">
+            <label>Titel</label>
+            <input id="title" required>
 
-        <label>Title</label>
-        <input id="title">
+            <label>Beskrivelse</label>
+            <input id="beskrivelse" required>
 
-        <label>Beskrivelse</label>
-        <input id="beskrivelse">
+            <label>Genre</label>
+            <select id="genre">
+                <option value="GYSER">Gyser</option>
+                <option value="ROMANTISK">Romantisk</option>
+                <option value="ACTION">Action</option>
+                <option value="SCIENCE_FICTION">Science Fiction</option>
+                <option value="KOMEDIE">Komedie</option>
+                <option value="DRAMA">Drama</option>
+            </select>
 
-        <label>Genre</label>
-        <select id="genre">
-            <option value="GYSER">Gyser</option>
-            <option value="ROMANTISK">Romantisk</option>
-            <option value="ACTION">Action</option>
-            <option value="SCIENCE_FICTION">Science Fiction</option>
-        </select>
+            <label>Aldersgrænse</label>
+            <select id="ageLimit">
+                <option value="ALL">Alle</option>
+                <option value="SYV_PLUS">7+</option>
+                <option value="ELLEVE_PLUS">11+</option>
+                <option value="FEMTEN_PLUS">15+</option>
+                <option value="ATTEN_PLUS">18+</option>
+            </select>
 
-        <label>Age Limit</label>
-        <select id="ageLimit">
-            <option value="ALLE">Alle</option>
-            <option value="SYV_PLUS">7+</option>
-            <option value="ELLEVE_PLUS">11+</option>
-            <option value="FEMTEN_PLUS">15+</option>
-        </select>
+            <label>Sprog</label>
+            <select id="language">
+                <option value="DANSK">Dansk</option>
+                <option value="ENGELSK">Engelsk</option>
+            </select>
 
-        <label>Language</label>
-        <select id="language">
-            <option value="DANSK">Dansk</option>
-            <option value="ENGELSK">Engelsk</option>
-        </select>
+            <label>Format</label>
+            <select id="format">
+                <option value="TWO_DIMENSIONAL">2D</option>
+                <option value="THREE_DIMENSIONAL">3D</option>
+            </select>
 
-        <label>Format</label>
-        <select id="format">
-            <option value="FORMAT_2D">2D</option>
-            <option value="FORMAT_3D">3D</option>
-        </select>
+            <label>Udgivelsesår</label>
+            <input id="releaseYear" type="number" min="1888" max="2100" required>
 
-        <label>Release Year</label>
-        <input id="releaseYear" type="number">
+            <label>Varighed (minutter)</label>
+            <input id="duration" type="number" min="1" required>
 
-        <label>Duration (minutes)</label>
-        <input id="duration" type="number">
-
-        <button class="btn" onclick="createMovie()">Opret film</button>
-
+            <button type="submit" class="btn">Opret film</button>
+        </form>
     </div>
 
+    <div id="showingsAdminPanel" style="display:none;">
+        <h2>Administrer film i sale</h2>
+
+        <div>
+            <label>Vælg film:</label>
+            <select id="showingMovieSelect" onchange="loadShowingsForMovie()">
+                <option value="">-- Vælg en film --</option>
+            </select>
+        </div>
+
+        <div id="showingsTable" style="display:none;">
+            <h3>Visninger</h3>
+            <table class="showings-admin-table">
+                <thead><tr>
+                    <th>Film</th>
+                    <th>Sal</th>
+                    <th>Start tid</th>
+                    <th>Slut tid</th>
+                    <th>Status</th>
+                </tr>
+                </thead>
+                <tbody id="showingsTableBody">
+                </tbody>
+            </table>
+        </div>
+
+        <div id="noShowings" style="display:none;">
+            Ingen visninger for denne film.
+        </div>
+    </div>
+
+    <div id="active-filter"></div>
     <div id="movies-container"></div>
 </div>
 <script>
-    //det fjerner resten af siden så det kun er formen for create der vises
+    const OMDB_API_KEY = '8e71e427';
+
     function hideAll() {
         document.getElementById("createMovieForm").style.display = "none";
         document.getElementById("movies-container").style.display = "none";
+        document.getElementById("active-filter").style.display = "none";
+        document.getElementById("showingsAdminPanel").style.display = "none";
     }
 
     function showCreateMovie() {
         hideAll();
-        const form = document.getElementById("createMovieForm");
+        document.getElementById("createMovieForm").style.display = "block";
+    }
 
-        if (form.style.display === "none") {
-            form.style.display = "block";
-        } else {
-            form.style.display = "none";
-        }
+    function showAllMovies() {
+        document.getElementById("createMovieForm").style.display = "none";
+        document.getElementById("movies-container").style.display = "block";
+        document.getElementById("active-filter").style.display = "block";
+        document.getElementById("showingsAdminPanel").style.display = "none";
+        loadMovies();
+    }
+
+    function showShowingsAdmin() {
+        hideAll();
+        document.getElementById("showingsAdminPanel").style.display = "block";
+        loadMoviesForShowingsAdmin();
     }
 
     function bookMovie(movieId) {
@@ -103,7 +147,6 @@
     }
 
     async function createMovie() {
-
         const user = JSON.parse(localStorage.getItem("user"));
         const adminUserId = user.userId;
 
@@ -117,10 +160,8 @@
             durationInMinutes: parseInt(document.getElementById("duration").value),
             releaseYear: parseInt(document.getElementById("releaseYear").value)
         };
-        console.log(movie);
 
         try {
-
             const response = await fetch(`/kino/movies?userId=${adminUserId}`, {
                 method: "POST",
                 headers: {
@@ -130,17 +171,13 @@
             });
 
             if (response.ok) {
-
                 alert("Film oprettet!");
-
-                hideAll(); // skjuler form og film
-
-                document.getElementById("movies-container").style.display = "block";
-
-                loadMovies();
-
+                document.getElementById("createMovieForm").reset();
+                showAllMovies();
+            } else {
+                const errorText = await response.text();
+                alert("Fejl ved oprettelse af film: " + errorText);
             }
-
         } catch (error) {
             console.error("Fejl ved oprettelse af film:", error);
         }
@@ -161,16 +198,71 @@
             userName.style.display = 'inline';
             userName.textContent = `Logget ind som: ${userData.name}`;
 
-            //Tjekker man er logget ind som admin
             if (userData.role === "ADMIN") {
-                adminPanel.style.display = "block";
+                document.getElementById("adminPanel").style.display = "block";
             }
 
             logoutLink.addEventListener('click', (e) => {
                 e.preventDefault();
                 localStorage.removeItem('user');
+                alert('Du er nu logget ud.');
                 window.location.href = 'index.html';
             });
+        }
+    }
+
+    function formatAgeLimit(ageLimit) {
+        const map = {
+            'ALL': 'Alle',
+            'SYV_PLUS': '7+',
+            'ELLEVE_PLUS': '11+',
+            'FEMTEN_PLUS': '15+',
+            'ATTEN_PLUS': '18+'
+        };
+        return map[ageLimit] || ageLimit;
+    }
+
+    function formatLanguage(lang) {
+        const map = {
+            'DANSK': '🌐 Dansk',
+            'ENGELSK': '🌐 Engelsk'
+        };
+        return map[lang] || lang;
+    }
+
+    function formatFormat(format) {
+        const map = {
+            'FORMAT_2D': '📽 2D',
+            'FORMAT_3D': '📽 3D'
+        };
+        return map[format] || format;
+    }
+
+    function formatGenre(genre) {
+        const map = {
+            'GYSER': '🎬 Gyser',
+            'ROMANTISK': '🎬 Romantik',
+            'ACTION': '🎬 Action',
+            'SCIENCE_FICTION': '🎬 Sci-Fi',
+            'KOMEDIE': '🎬 Komedie',
+            'DRAMA': '🎬 Drama'
+        };
+        return map[genre] || '🎬 ' + genre;
+    }
+
+    function addFilter(type, value) {
+        const params = new URLSearchParams(window.location.search);
+        params.set(type, value);
+        window.location.href = `index.html?${params.toString()}`;
+    }
+
+    async function getPoster(title, year) {
+        try {
+            const res = await fetch(`https://www.omdbapi.com/?t=${encodeURIComponent(title)}&y=${year}&apikey=${OMDB_API_KEY}`);
+            const data = await res.json();
+            return data.Poster && data.Poster !== 'N/A' ? data.Poster : null;
+        } catch (e) {
+            return null;
         }
     }
 
@@ -178,35 +270,137 @@
         const user = JSON.parse(localStorage.getItem("user"));
         const isAdmin = user && user.role === "ADMIN";
         try {
+            const params = new URLSearchParams(window.location.search);
+            const ageFilter = params.get('ageLimit');
+            const genreFilter = params.get('genre');
+            const langFilter = params.get('language');
+            const formatFilter = params.get('format');
+
             const response = await fetch('/kino/movies');
-            const movies = await response.json();
-            const container = document.getElementById('movies-container');
-            function formatEnum(str) {
-                if (!str) return '';
-                return str.split('_')
-                          .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-                          .join(' ');
+            let movies = await response.json();
+
+            if (ageFilter) movies = movies.filter(m => m.ageLimit === ageFilter);
+            if (genreFilter) movies = movies.filter(m => m.genre === genreFilter);
+            if (langFilter) movies = movies.filter(m => m.language === langFilter);
+            if (formatFilter) movies = movies.filter(m => m.format === formatFilter);
+
+            const activeFilters = [];
+            if (ageFilter) activeFilters.push(`Aldersgrænse: <strong>${formatAgeLimit(ageFilter)}</strong>`);
+            if (genreFilter) activeFilters.push(`Genre: <strong>${formatGenre(genreFilter)}</strong>`);
+            if (langFilter) activeFilters.push(`Sprog: <strong>${formatLanguage(langFilter)}</strong>`);
+            if (formatFilter) activeFilters.push(`Format: <strong>${formatFormat(formatFilter)}</strong>`);
+
+            const filterDiv = document.getElementById('active-filter');
+            if (activeFilters.length > 0) {
+                filterDiv.innerHTML = `
+                    <p style="color:#888; margin-bottom:10px;">
+                        Filtreret på: ${activeFilters.join(' | ')}
+                        &nbsp;<a href="index.html" style="color:#d32f2f; font-size:13px;">✕ Fjern alle filtre</a>
+                    </p>`;
             }
-            container.innerHTML = "";
-            movies.forEach(movie => {
+
+            const container = document.getElementById('movies-container');
+            container.innerHTML = '';
+
+            for (const movie of movies) {
+                const posterUrl = await getPoster(movie.title, movie.releaseYear);
                 const card = document.createElement('div');
                 card.className = 'movie-card';
                 card.innerHTML = `
-                <div class="movie-info">
-                    <h2>${movie.title} (${movie.releaseYear})</h2>
-                </div>
-                <button class="btn btn-secondary" onclick="window.location.href='movie.html?movieId=${movie.movieId}'">Læs mere</button>
-                <button class="btn" onclick="bookMovie(${movie.movieId})">Book Nu</button>
-                ${isAdmin ? `<button class="btn" onclick="deleteMovie(${movie.movieId})">Slet film</button>` : ""}
-            `;
+                    ${posterUrl ? `<img src="${posterUrl}" alt="${movie.title}" style="width:70px; border-radius:5px; margin-right:15px; flex-shrink:0;">` : ''}
+                    <div class="movie-info" style="flex:1;">
+                        <h2>${movie.title} (${movie.releaseYear})</h2>
+                        <p>
+                            <span class="badge" onclick="addFilter('genre', '${movie.genre}')" style="cursor:pointer;">${formatGenre(movie.genre)}</span>
+                            <span class="badge" onclick="addFilter('language', '${movie.language}')" style="cursor:pointer;">${formatLanguage(movie.language)}</span>
+                            <span class="badge" onclick="addFilter('format', '${movie.format}')" style="cursor:pointer;">${formatFormat(movie.format)}</span>
+                        </p>
+                        <p>
+                            <span class="badge age" onclick="addFilter('ageLimit', '${movie.ageLimit}')" style="cursor:pointer;">${formatAgeLimit(movie.ageLimit)}</span>
+                            | ${movie.durationInMinutes} min
+                        </p>
+                    </div>
+                    <div style="display:flex; gap:10px; flex-shrink:0;">
+                        <button class="btn btn-secondary" onclick="window.location.href='movie.html?movieId=${movie.movieId}'">Læs mere</button>
+                        <button class="btn" onclick="bookMovie(${movie.movieId})">Bestil nu</button>
+                        ${isAdmin ? `<button class="btn" style="background: #555;" onclick="deleteMovie(${movie.movieId})">Slet film</button>` : ""}
+                    </div>
+                `;
                 container.appendChild(card);
-            });
+            }
         } catch (error) {
             console.error('Error loading movies:', error);
         }
     }
-    async function deleteMovie(movieId) {
 
+    async function loadMoviesForShowingsAdmin() {
+        try {
+            const response = await fetch('/kino/movies');
+            const movies = await response.json();
+
+            const select = document.getElementById('showingMovieSelect');
+            select.innerHTML = '<option value="">-- Vælg en film --</option>';
+            movies.forEach(movie => {
+                const option = document.createElement('option');
+                option.value = movie.movieId;
+                option.textContent = movie.title;
+                select.appendChild(option);
+            });
+        } catch (error) {
+            console.error('Fejl ved hentning af film:', error);
+        }
+    }
+
+    async function loadShowingsForMovie() {
+        const movieId = document.getElementById('showingMovieSelect').value;
+
+        if (!movieId) {
+            document.getElementById('showingsTable').style.display = 'none';
+            document.getElementById('noShowings').style.display = 'none';
+            return;
+        }
+
+        try {
+            const response = await fetch(`/kino/showings/${movieId}`);
+            const showings = await response.json();
+
+            const tbody = document.getElementById('showingsTableBody');
+            tbody.innerHTML = '';
+
+            if (showings.length === 0) {
+                document.getElementById('showingsTable').style.display = 'none';
+                document.getElementById('noShowings').style.display = 'block';
+                return;
+            }
+
+            showings.forEach(showing => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${showing.movieTitle}</td>
+                    <td>${showing.theaterName}</td>
+                    <td>${formatDateTime(showing.startTime)}</td>
+                    <td>${formatDateTime(showing.endTime)}</td>
+                    <td><span class="status-badge ${showing.showingStatus === 'UPCOMING' ? 'status-upcoming' : 'status-active'}">
+                        ${showing.showingStatus === 'UPCOMING' ? 'Kommende' : 'Aktiv'}
+                    </span></td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            document.getElementById('showingsTable').style.display = 'block';
+            document.getElementById('noShowings').style.display = 'none';
+        } catch (error) {
+            console.error('Fejl ved hentning af visninger:', error);
+            document.getElementById('noShowings').style.display = 'block';
+        }
+    }
+
+    function formatDateTime(dateTime) {
+        const date = new Date(dateTime);
+        return date.toLocaleDateString('da-DK') + ' ' + date.toLocaleTimeString('da-DK', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    async function deleteMovie(movieId) {
         const user = JSON.parse(localStorage.getItem("user"));
 
         const response = await fetch(`/kino/movies/${movieId}?adminUserId=${user.userId}`, {
@@ -215,9 +409,10 @@
 
         if (response.ok) {
             alert("Film slettet");
-            loadMovies();
+            showAllMovies();
         } else {
-            alert("Kun admin kan slette film");
+            const errorText = await response.text();
+            alert("Kun admin kan slette film: " + errorText);
         }
     }
 

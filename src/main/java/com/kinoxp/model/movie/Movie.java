@@ -62,6 +62,14 @@ public class Movie {
         this.ageLimit = ageLimit;
     }
 
+    public String getDescription(){
+        return description;
+    }
+
+    public void setDescription(String description){
+        this.description = description;
+    }
+
     public Long getMovieId() {
         return movieId;
     }
@@ -76,14 +84,6 @@ public class Movie {
 
     public void setTitle(String title) {
         this.title = title;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
     }
 
     public int getReleaseYear() {

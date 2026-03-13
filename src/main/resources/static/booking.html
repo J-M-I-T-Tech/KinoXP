@@ -10,45 +10,53 @@
 <div class="container">
     <a href="index.html" class="back-btn">← Afbryd</a>
     <h1 id="booking-title">Reserver billetter</h1>
-    <div id="movie-info-short" style="text-align: center; margin-bottom: 20px;">
+    <div id="showing-selection" style="display: none; text-align: center; margin-bottom: 20px;">
+        <h3>Vælg en forestilling</h3>
+        <div id="showings-list" style="display: flex; flex-direction: column; gap: 10px; align-items: center;">
+            <!-- Forestillinger indlæses her -->
+        </div>
+    </div>
+    <div id="movie-info-short" style="text-align: center; margin-bottom: 20px; display: none;">
         <!-- Film og tidspunkt indlæses her -->
     </div>
 
-    <div class="seat-grid-container">
-        <div class="legend">
-            <div class="legend-item"><div class="legend-box" style="background: #8bc34a;"></div> Ledig</div>
-            <div class="legend-item"><div class="legend-box" style="background: #64dd17;"></div> Cowboy (billig)</div>
-            <div class="legend-item"><div class="legend-box" style="background: #2e7d32;"></div> Sofa (dyr)</div>
-            <div class="legend-item"><div class="legend-box" style="background: #ffeb3b;"></div> Valgt</div>
-            <div class="legend-item"><div class="legend-box" style="background: #9e9e9e;"></div> Optaget</div>
+    <div id="booking-content" style="display: none;">
+        <div class="seat-grid-container">
+            <div class="legend">
+                <div class="legend-item"><div class="legend-box" style="background: #8bc34a;"></div> Ledig</div>
+                <div class="legend-item"><div class="legend-box" style="background: #64dd17;"></div> Cowboy (billig)</div>
+                <div class="legend-item"><div class="legend-box" style="background: #2e7d32;"></div> Sofa (dyr)</div>
+                <div class="legend-item"><div class="legend-box" style="background: #ffeb3b;"></div> Valgt</div>
+                <div class="legend-item"><div class="legend-box" style="background: #9e9e9e;"></div> Optaget</div>
+            </div>
+            <div class="screen">LÆRRED</div>
+            <div id="seat-grid">
+                <!-- Sæder genereres her -->
+            </div>
         </div>
-        <div class="screen">LÆRRED</div>
-        <div id="seat-grid">
-            <!-- Sæder genereres her -->
-        </div>
-    </div>
 
-    <div class="booking-summary">
-        <p>Valgte sæder: <span id="selected-seats-list">-</span></p>
-        <p>Antal billetter: <span id="ticket-count">0</span></p>
-        <div id="price-breakdown" style="font-size: 0.9em; margin-top: 10px; border-top: 1px solid #ddd; padding-top: 10px; display: none;">
-            <p style="margin-bottom: 5px;"><strong>Pris-detaljer:</strong></p>
-            <ul id="breakdown-list" style="list-style: none; padding-left: 0; margin-bottom: 10px;"></ul>
+        <div class="booking-summary">
+            <p>Valgte sæder: <span id="selected-seats-list">-</span></p>
+            <p>Antal billetter: <span id="ticket-count">0</span></p>
+            <div id="price-breakdown" style="font-size: 0.9em; margin-top: 10px; border-top: 1px solid #ddd; padding-top: 10px; display: none;">
+                <p style="margin-bottom: 5px;"><strong>Pris-detaljer:</strong></p>
+                <ul id="breakdown-list" style="list-style: none; padding-left: 0; margin-bottom: 10px;"></ul>
+            </div>
+            <p><strong>Total pris: <span id="total-price">0</span> kr.</strong></p>
+            <div id="login-notice" style="color: #d32f2f; display: none; margin-bottom: 10px;">
+                Du skal være logget ind for at bekræfte reservationen.
+            </div>
+            <button id="confirm-booking-btn" class="btn" style="width: 100%; font-size: 1.2em;" disabled>Bekræft reservation</button>
         </div>
-        <p><strong>Total pris: <span id="total-price">0</span> kr.</strong></p>
-        <div id="login-notice" style="color: #d32f2f; display: none; margin-bottom: 10px;">
-            Du skal være logget ind for at bekræfte reservationen.
-        </div>
-        <button id="confirm-booking-btn" class="btn" style="width: 100%; font-size: 1.2em;" disabled>Bekræft reservation</button>
     </div>
 </div>
 
 <script>
     const urlParams = new URLSearchParams(window.location.search);
     const movieId = urlParams.get('movieId');
-    const showingId = urlParams.get('showingId');
+    let showingId = urlParams.get('showingId');
 
-    if (!movieId || !showingId) {
+    if (!movieId) {
         window.location.href = 'index.html';
     }
 
@@ -57,44 +65,102 @@
     let movieData = null;
     let currentShowing = null;
 
+    function formatDateTime(dateTimeStr) {
+        const date = new Date(dateTimeStr);
+        return date.toLocaleDateString('da-DK', { weekday: 'long', day: 'numeric', month: 'long' })
+            + ' kl. ' + date.toLocaleTimeString('da-DK', { hour: '2-digit', minute: '2-digit' });
+    }
+
     async function loadBookingData() {
         try {
-            // 1. Hent film og forestilling
+            // 1. Hent film
             const movieResp = await fetch(`/kino/movies/${movieId}`);
             movieData = await movieResp.json();
+            document.getElementById('booking-title').textContent = `Reserver billetter: ${movieData.title}`;
 
-            // Vi har brug for theaterId fra showing
+            // 2. Hent forestillinger
             const showingsResp = await fetch(`/kino/showings/movie/${movieId}`);
             const showings = await showingsResp.json();
+
+            if (!showingId) {
+                renderShowingSelection(showings);
+                return;
+            }
+
             currentShowing = showings.find(s => s.showingId == showingId);
 
-            if (!currentShowing) throw new Error("Forestilling ikke fundet");
-            theaterId = currentShowing.theaterId;
+            if (!currentShowing) {
+                renderShowingSelection(showings);
+                return;
+            }
 
-            const startTime = new Date(currentShowing.startTime);
-            const dateStr = startTime.toLocaleDateString('da-DK', { weekday: 'long', day: 'numeric', month: 'long' });
-            const timeStr = startTime.toLocaleTimeString('da-DK', { hour: '2-digit', minute: '2-digit' });
-
-            document.getElementById('booking-title').textContent = `Reserver billetter: ${movieData.title}`;
-            document.getElementById('movie-info-short').innerHTML = `
-                <p><strong>${dateStr} kl. ${timeStr}</strong></p>
-                <p>Sal: ${currentShowing.theaterName}</p>
-            `;
-
-            // 2. Hent alle sæder for salen
-            const seatsResp = await fetch(`/kino/seats/theater/${theaterId}`);
-            const allSeats = await seatsResp.json();
-
-            // 3. Hent reserverede sæder
-            const reservedResp = await fetch(`/kino/reservations/showing/${showingId}/reserved-seats`);
-            const reservedSeatIds = await reservedResp.json();
-
-            renderSeatGrid(allSeats, reservedSeatIds);
+            await initializeBooking(currentShowing);
 
         } catch (error) {
             console.error('Fejl ved indlæsning af bookingdata:', error);
-            alert("Kunne ikke indlæse data for denne forestilling.");
+            alert("Kunne ikke indlæse data.");
         }
+    }
+
+    function renderShowingSelection(showings) {
+        document.getElementById('booking-title').textContent = `Vælg forestilling: ${movieData.title}`;
+        document.getElementById('showing-selection').style.display = 'block';
+        document.getElementById('booking-content').style.display = 'none';
+        document.getElementById('movie-info-short').style.display = 'none';
+
+        const list = document.getElementById('showings-list');
+        list.innerHTML = '';
+
+        if (showings.length === 0) {
+            list.innerHTML = '<p>Ingen kommende forestillinger fundet for denne film.</p>';
+            return;
+        }
+
+        showings.forEach(s => {
+            const btn = document.createElement('button');
+            btn.className = 'btn';
+            btn.style.width = '300px';
+            btn.style.marginBottom = '10px';
+            btn.innerHTML = `${formatDateTime(s.startTime)}<br><small>${s.theaterName || 'Sal'}</small>`;
+            btn.onclick = () => {
+                showingId = s.showingId;
+                // Opdater URL uden at reloade (valgfrit, men pænt)
+                const newUrl = window.location.pathname + `?movieId=${movieId}&showingId=${showingId}`;
+                window.history.pushState({path:newUrl},'',newUrl);
+                initializeBooking(s);
+            };
+            list.appendChild(btn);
+        });
+    }
+
+    async function initializeBooking(showing) {
+        currentShowing = showing;
+        showingId = showing.showingId;
+        theaterId = showing.theaterId;
+
+        document.getElementById('showing-selection').style.display = 'none';
+        document.getElementById('booking-content').style.display = 'block';
+        document.getElementById('movie-info-short').style.display = 'block';
+
+        const startTime = new Date(showing.startTime);
+        const dateStr = startTime.toLocaleDateString('da-DK', { weekday: 'long', day: 'numeric', month: 'long' });
+        const timeStr = startTime.toLocaleTimeString('da-DK', { hour: '2-digit', minute: '2-digit' });
+
+        document.getElementById('movie-info-short').innerHTML = `
+            <p><strong>${dateStr} kl. ${timeStr}</strong></p>
+            <p>Sal: ${showing.theaterName}</p>
+            <button class="btn" style="background: #555; padding: 5px 10px; font-size: 0.8em; margin-top: 5px;" onclick="location.reload()">Skift forestilling</button>
+        `;
+
+        // Hent alle sæder for salen
+        const seatsResp = await fetch(`/kino/seats/theater/${theaterId}`);
+        const allSeats = await seatsResp.json();
+
+        // Hent reserverede sæder
+        const reservedResp = await fetch(`/kino/reservations/showing/${showingId}/reserved-seats`);
+        const reservedSeatIds = await reservedResp.json();
+
+        renderSeatGrid(allSeats, reservedSeatIds);
     }
 
     function renderSeatGrid(allSeats, reservedSeatIds) {
