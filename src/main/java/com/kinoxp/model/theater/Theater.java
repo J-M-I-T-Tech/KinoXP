@@ -1,5 +1,6 @@
 package com.kinoxp.model.theater;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.kinoxp.model.seat.Seat;
 import jakarta.persistence.*;
 
@@ -16,6 +17,7 @@ public class Theater {
     private int totalRows;
     private int seatsPerRow;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "theater", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Seat> seats = new ArrayList<>();
 

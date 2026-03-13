@@ -8,4 +8,5 @@ import java.util.List;
 
 public interface ShowingRepository extends JpaRepository<Showing, Long> {
     List<Showing> findByMovie_MovieIdAndStartTimeAfterOrderByStartTimeAsc(Long movieId, LocalDateTime startTime);
+    List<Showing> findByMovie_MovieIdOrderByStartTimeAsc(Long movieId);
 }

@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:mysql://127.0.0.1:3307/kinoxp?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Europe/Copenhagen
+    url: jdbc:mysql://127.0.0.1:3307/KinoXP?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Europe/Copenhagen
     username: kino
     password: kino
     driver-class-name: com.mysql.cj.jdbc.Driver

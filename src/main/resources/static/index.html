@@ -77,15 +77,18 @@
     <div id="showingsAdminPanel" style="display:none;">
         <h2>Administrer film i sale</h2>
 
-        <div>
+        <div style="margin-bottom: 16px;">
             <label>Vælg film:</label>
             <select id="showingMovieSelect" onchange="loadShowingsForMovie()">
                 <option value="">-- Vælg en film --</option>
             </select>
         </div>
 
-        <div id="showingsTable" style="display:none;">
-            <h3>Visninger</h3>
+        <div id="showingsTableContainer" style="display:none;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <h3 style="margin:0;">Visninger</h3>
+                <button class="btn" onclick="openCreateShowingModal()">+ Opret ny visning</button>
+            </div>
             <table class="showings-admin-table">
                 <thead><tr>
                     <th>Film</th>
@@ -93,23 +96,60 @@
                     <th>Start tid</th>
                     <th>Slut tid</th>
                     <th>Status</th>
-                </tr>
-                </thead>
-                <tbody id="showingsTableBody">
-                </tbody>
+                    <th>Handlinger</th>
+                </tr></thead>
+                <tbody id="showingsTableBody"></tbody>
             </table>
         </div>
 
         <div id="noShowings" style="display:none;">
-            Ingen visninger for denne film.
+            <p style="color:#888; font-style:italic;">Ingen visninger for denne film.</p>
+            <button class="btn" onclick="openCreateShowingModal()">+ Opret ny visning</button>
         </div>
     </div>
 
     <div id="active-filter"></div>
     <div id="movies-container"></div>
 </div>
+
+<!-- Modal: Opret / Rediger visning -->
+<div class="modal-overlay" id="showingModal">
+    <div class="modal">
+        <h3 id="modalTitle">Opret visning</h3>
+        <input type="hidden" id="editShowingId">
+
+        <label>Film</label>
+        <select id="modalMovieId"></select>
+
+        <label>Sal</label>
+        <select id="modalTheaterId"></select>
+
+        <label>Starttidspunkt</label>
+        <input type="datetime-local" id="modalStartTime">
+
+        <label>Sluttidspunkt</label>
+        <input type="datetime-local" id="modalEndTime">
+
+        <label>Status</label>
+        <select id="modalStatus">
+            <option value="UPCOMING">Kommende</option>
+            <option value="RUNNING">I gang</option>
+            <option value="COMPLETED">Afsluttet</option>
+            <option value="CANCELLED">Aflyst</option>
+        </select>
+
+        <div class="modal-buttons">
+            <button class="btn" onclick="saveShowing()">Gem</button>
+            <button class="btn btn-secondary" onclick="closeModal()">Annuller</button>
+        </div>
+    </div>
+</div>
+
 <script>
     const OMDB_API_KEY = '8e71e427';
+
+    // Cache til at gemme visning-objekter — undgår at sende JSON igennem HTML-attributter
+    const showingsCache = {};
 
     function hideAll() {
         document.getElementById("createMovieForm").style.display = "none";
@@ -165,9 +205,7 @@
         try {
             const response = await fetch(`/kino/movies?userId=${adminUserId}`, {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(movie)
             });
 
@@ -198,8 +236,11 @@
             registerLink.style.display = 'none';
             logoutLink.style.display = 'inline';
             userName.style.display = 'inline';
-            myReservationsLink.style.display = 'inline';
             userName.textContent = `Logget ind som: ${userData.name}`;
+
+            if (userData.role === "CUSTOMER") {
+                myReservationsLink.style.display = 'inline';
+            }
 
             if (userData.role === "ADMIN") {
                 document.getElementById("adminPanel").style.display = "block";
@@ -215,41 +256,22 @@
     }
 
     function formatAgeLimit(ageLimit) {
-        const map = {
-            'ALL': 'Alle',
-            'SYV_PLUS': '7+',
-            'ELLEVE_PLUS': '11+',
-            'FEMTEN_PLUS': '15+',
-            'ATTEN_PLUS': '18+'
-        };
+        const map = { 'ALL': 'Alle', 'SYV_PLUS': '7+', 'ELLEVE_PLUS': '11+', 'FEMTEN_PLUS': '15+', 'ATTEN_PLUS': '18+' };
         return map[ageLimit] || ageLimit;
     }
 
     function formatLanguage(lang) {
-        const map = {
-            'DANSK': '🌐 Dansk',
-            'ENGELSK': '🌐 Engelsk'
-        };
+        const map = { 'DANSK': '🌐 Dansk', 'ENGELSK': '🌐 Engelsk' };
         return map[lang] || lang;
     }
 
     function formatFormat(format) {
-        const map = {
-            'FORMAT_2D': '📽 2D',
-            'FORMAT_3D': '📽 3D'
-        };
+        const map = { 'FORMAT_2D': '📽 2D', 'FORMAT_3D': '📽 3D' };
         return map[format] || format;
     }
 
     function formatGenre(genre) {
-        const map = {
-            'GYSER': '🎬 Gyser',
-            'ROMANTISK': '🎬 Romantik',
-            'ACTION': '🎬 Action',
-            'SCIENCE_FICTION': '🎬 Sci-Fi',
-            'KOMEDIE': '🎬 Komedie',
-            'DRAMA': '🎬 Drama'
-        };
+        const map = { 'GYSER': '🎬 Gyser', 'ROMANTISK': '🎬 Romantik', 'ACTION': '🎬 Action', 'SCIENCE_FICTION': '🎬 Sci-Fi', 'KOMEDIE': '🎬 Komedie', 'DRAMA': '🎬 Drama' };
         return map[genre] || '🎬 ' + genre;
     }
 
@@ -295,11 +317,7 @@
 
             const filterDiv = document.getElementById('active-filter');
             if (activeFilters.length > 0) {
-                filterDiv.innerHTML = `
-                    <p style="color:#888; margin-bottom:10px;">
-                        Filtreret på: ${activeFilters.join(' | ')}
-                        &nbsp;<a href="index.html" style="color:#d32f2f; font-size:13px;">✕ Fjern alle filtre</a>
-                    </p>`;
+                filterDiv.innerHTML = `<p style="color:#888; margin-bottom:10px;">Filtreret på: ${activeFilters.join(' | ')} &nbsp;<a href="index.html" style="color:#d32f2f; font-size:13px;">✕ Fjern alle filtre</a></p>`;
             }
 
             const container = document.getElementById('movies-container');
@@ -349,49 +367,85 @@
                 option.textContent = movie.title;
                 select.appendChild(option);
             });
+
+            // Fyld også modal filmvalg
+            const modalSelect = document.getElementById('modalMovieId');
+            modalSelect.innerHTML = '';
+            movies.forEach(movie => {
+                const option = document.createElement('option');
+                option.value = movie.movieId;
+                option.textContent = movie.title;
+                modalSelect.appendChild(option);
+            });
         } catch (error) {
             console.error('Fejl ved hentning af film:', error);
+        }
+    }
+
+    async function loadTheatersForModal() {
+        try {
+            const response = await fetch('/kino/theaters');
+            const theaters = await response.json();
+            const select = document.getElementById('modalTheaterId');
+            select.innerHTML = '';
+            theaters.forEach(t => {
+                const option = document.createElement('option');
+                option.value = t.theaterId;
+                option.textContent = t.theaterName;
+                select.appendChild(option);
+            });
+        } catch (error) {
+            console.error('Fejl ved hentning af sale:', error);
         }
     }
 
     async function loadShowingsForMovie() {
         const movieId = document.getElementById('showingMovieSelect').value;
 
-        if (!movieId) {
-            document.getElementById('showingsTable').style.display = 'none';
-            document.getElementById('noShowings').style.display = 'none';
-            return;
-        }
+        document.getElementById('showingsTableContainer').style.display = 'none';
+        document.getElementById('noShowings').style.display = 'none';
+
+        if (!movieId) return;
 
         try {
-            const response = await fetch(`/kino/showings/${movieId}`);
+            const response = await fetch(`/kino/showings/movie/${movieId}/all`);
             const showings = await response.json();
 
             const tbody = document.getElementById('showingsTableBody');
             tbody.innerHTML = '';
 
             if (showings.length === 0) {
-                document.getElementById('showingsTable').style.display = 'none';
                 document.getElementById('noShowings').style.display = 'block';
                 return;
             }
 
             showings.forEach(showing => {
+                // Gem visningen i cache så vi kan slå den op fra onclick
+                showingsCache[showing.showingId] = showing;
+
+                const statusLabel = {
+                    'UPCOMING': 'Kommende',
+                    'RUNNING': 'I gang',
+                    'COMPLETED': 'Afsluttet',
+                    'CANCELLED': 'Aflyst'
+                }[showing.showingStatus] || showing.showingStatus;
+
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${showing.movieTitle}</td>
                     <td>${showing.theaterName}</td>
                     <td>${formatDateTime(showing.startTime)}</td>
                     <td>${formatDateTime(showing.endTime)}</td>
-                    <td><span class="status-badge ${showing.showingStatus === 'UPCOMING' ? 'status-upcoming' : 'status-active'}">
-                        ${showing.showingStatus === 'UPCOMING' ? 'Kommende' : 'Aktiv'}
-                    </span></td>
+                    <td><span class="status-badge ${showing.showingStatus === 'UPCOMING' ? 'status-upcoming' : 'status-active'}">${statusLabel}</span></td>
+                    <td style="display:flex; gap:6px;">
+                        <button class="btn" style="padding:4px 10px; font-size:0.85em;" onclick="openEditShowingModal(${showing.showingId})">Rediger</button>
+                        <button class="btn btn-danger" style="padding:4px 10px; font-size:0.85em;" onclick="deleteShowing(${showing.showingId})">Slet</button>
+                    </td>
                 `;
                 tbody.appendChild(row);
             });
 
-            document.getElementById('showingsTable').style.display = 'block';
-            document.getElementById('noShowings').style.display = 'none';
+            document.getElementById('showingsTableContainer').style.display = 'block';
         } catch (error) {
             console.error('Fejl ved hentning af visninger:', error);
             document.getElementById('noShowings').style.display = 'block';
@@ -403,10 +457,116 @@
         return date.toLocaleDateString('da-DK') + ' ' + date.toLocaleTimeString('da-DK', { hour: '2-digit', minute: '2-digit' });
     }
 
+    function toDateTimeLocal(dateTimeStr) {
+        const d = new Date(dateTimeStr);
+        const pad = n => String(n).padStart(2, '0');
+        return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    }
+
+    async function openCreateShowingModal() {
+        document.getElementById('modalTitle').textContent = 'Opret visning';
+        document.getElementById('editShowingId').value = '';
+        document.getElementById('modalStartTime').value = '';
+        document.getElementById('modalEndTime').value = '';
+        document.getElementById('modalStatus').value = 'UPCOMING';
+
+        // Forvælg nuværende film
+        const movieId = document.getElementById('showingMovieSelect').value;
+        await loadTheatersForModal();
+
+        if (movieId) {
+            document.getElementById('modalMovieId').value = movieId;
+        }
+
+        document.getElementById('showingModal').classList.add('active');
+    }
+
+    // Modtager nu kun showingId og slår visningen op i cachen
+    async function openEditShowingModal(showingId) {
+        const showing = showingsCache[showingId];
+        if (!showing) {
+            alert('Visning ikke fundet – prøv at genindlæse listen.');
+            return;
+        }
+
+        document.getElementById('modalTitle').textContent = 'Rediger visning';
+        document.getElementById('editShowingId').value = showing.showingId;
+
+        await loadTheatersForModal();
+
+        document.getElementById('modalMovieId').value = showing.movieId;
+        document.getElementById('modalTheaterId').value = showing.theaterId;
+        document.getElementById('modalStartTime').value = toDateTimeLocal(showing.startTime);
+        document.getElementById('modalEndTime').value = toDateTimeLocal(showing.endTime);
+        document.getElementById('modalStatus').value = showing.showingStatus;
+
+        document.getElementById('showingModal').classList.add('active');
+    }
+
+    function closeModal() {
+        document.getElementById('showingModal').classList.remove('active');
+    }
+
+    async function saveShowing() {
+        const user = JSON.parse(localStorage.getItem("user"));
+        const editId = document.getElementById('editShowingId').value;
+
+        const body = {
+            movieId: parseInt(document.getElementById('modalMovieId').value),
+            theaterId: parseInt(document.getElementById('modalTheaterId').value),
+            startTime: document.getElementById('modalStartTime').value,
+            endTime: document.getElementById('modalEndTime').value,
+            showingStatus: document.getElementById('modalStatus').value
+        };
+
+        const isEdit = !!editId;
+        const url = isEdit
+            ? `/kino/showings/${editId}?userId=${user.userId}`
+            : `/kino/showings?userId=${user.userId}`;
+
+        try {
+            const response = await fetch(url, {
+                method: isEdit ? 'PUT' : 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+
+            if (response.ok) {
+                closeModal();
+                loadShowingsForMovie();
+            } else {
+                const err = await response.text();
+                alert('Fejl: ' + err);
+            }
+        } catch (error) {
+            console.error('Fejl ved gem af visning:', error);
+        }
+    }
+
+    async function deleteShowing(showingId) {
+        if (!confirm('Er du sikker på at du vil slette denne visning?')) return;
+
+        const user = JSON.parse(localStorage.getItem("user"));
+
+        try {
+            const response = await fetch(`/kino/showings/${showingId}?userId=${user.userId}`, {
+                method: 'DELETE'
+            });
+
+            if (response.ok) {
+                loadShowingsForMovie();
+            } else {
+                alert('Fejl ved sletning af visning.');
+            }
+        } catch (error) {
+            console.error('Fejl ved sletning:', error);
+        }
+    }
+
     async function deleteMovie(movieId) {
         const user = JSON.parse(localStorage.getItem("user"));
 
-        const response = await fetch(`/kino/movies/${movieId}?adminUserId=${user.userId}`, {
+        const response = await fetch(`/kino/movies/${movieId}?userId=${user.userId}`, {
             method: "DELETE"
         });
 
