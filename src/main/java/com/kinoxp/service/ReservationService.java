@@ -130,13 +130,16 @@ public class ReservationService {
         return new ReservationResponse(
                 reservation.getReservationId(),
                 reservation.getShowing().getShowingId(),
+                reservation.getShowing().getMovie().getMovieId(),
                 reservation.getShowing().getMovie().getTitle(),
                 reservation.getCustomerName(),
                 seatIds,
                 reservation.getTotalPrice(),
                 reservation.getBookingStatus(),
                 reservation.getPaymentStatus(),
-                reservation.getCreatedAt()
+                reservation.getCreatedAt(),
+                reservation.getShowing().getStartTime(),
+                reservation.getShowing().getTheater().getTheaterName()
         );
     }
 

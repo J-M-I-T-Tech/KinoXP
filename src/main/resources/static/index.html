@@ -11,6 +11,7 @@
     <a href="login.html" id="loginLink">Log ind</a>
     <a href="register.html" id="registerLink">Opret bruger</a>
     <a href="#" id="logoutLink" style="display: none;">Log ud</a>
+    <a href="my-reservations.html" id="myReservationsLink" style="display: none;">Mine Reservationer</a>
     <span id="userName" style="display: none; color: #d32f2f; margin-left: 15px;"></span>
 </div>
 <div class="container">
@@ -189,6 +190,7 @@
         const registerLink = document.getElementById('registerLink');
         const logoutLink = document.getElementById('logoutLink');
         const userName = document.getElementById('userName');
+        const myReservationsLink = document.getElementById('myReservationsLink');
 
         if (user) {
             const userData = JSON.parse(user);
@@ -196,6 +198,7 @@
             registerLink.style.display = 'none';
             logoutLink.style.display = 'inline';
             userName.style.display = 'inline';
+            myReservationsLink.style.display = 'inline';
             userName.textContent = `Logget ind som: ${userData.name}`;
 
             if (userData.role === "ADMIN") {

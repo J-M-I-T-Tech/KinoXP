@@ -13,11 +13,9 @@
     <div id="showing-selection" style="display: none; text-align: center; margin-bottom: 20px;">
         <h3>Vælg en forestilling</h3>
         <div id="showings-list" style="display: flex; flex-direction: column; gap: 10px; align-items: center;">
-            <!-- Forestillinger indlæses her -->
         </div>
     </div>
     <div id="movie-info-short" style="text-align: center; margin-bottom: 20px; display: none;">
-        <!-- Film og tidspunkt indlæses her -->
     </div>
 
     <div id="booking-content" style="display: none;">
@@ -31,7 +29,6 @@
             </div>
             <div class="screen">LÆRRED</div>
             <div id="seat-grid">
-                <!-- Sæder genereres her -->
             </div>
         </div>
 
@@ -73,12 +70,10 @@
 
     async function loadBookingData() {
         try {
-            // 1. Hent film
             const movieResp = await fetch(`/kino/movies/${movieId}`);
             movieData = await movieResp.json();
             document.getElementById('booking-title').textContent = `Reserver billetter: ${movieData.title}`;
 
-            // 2. Hent forestillinger
             const showingsResp = await fetch(`/kino/showings/movie/${movieId}`);
             const showings = await showingsResp.json();
 
@@ -124,9 +119,8 @@
             btn.innerHTML = `${formatDateTime(s.startTime)}<br><small>${s.theaterName || 'Sal'}</small>`;
             btn.onclick = () => {
                 showingId = s.showingId;
-                // Opdater URL uden at reloade (valgfrit, men pænt)
                 const newUrl = window.location.pathname + `?movieId=${movieId}&showingId=${showingId}`;
-                window.history.pushState({path:newUrl},'',newUrl);
+                window.history.pushState({path: newUrl}, '', newUrl);
                 initializeBooking(s);
             };
             list.appendChild(btn);
@@ -152,11 +146,9 @@
             <button class="btn" style="background: #555; padding: 5px 10px; font-size: 0.8em; margin-top: 5px;" onclick="location.reload()">Skift forestilling</button>
         `;
 
-        // Hent alle sæder for salen
         const seatsResp = await fetch(`/kino/seats/theater/${theaterId}`);
         const allSeats = await seatsResp.json();
 
-        // Hent reserverede sæder
         const reservedResp = await fetch(`/kino/reservations/showing/${showingId}/reserved-seats`);
         const reservedSeatIds = await reservedResp.json();
 
@@ -167,21 +159,18 @@
         const grid = document.getElementById('seat-grid');
         grid.innerHTML = '';
 
-        // Gruppér efter række
         const rows = {};
         allSeats.forEach(seat => {
             if (!rows[seat.rowNumber]) rows[seat.rowNumber] = [];
             rows[seat.rowNumber].push(seat);
         });
 
-        // Sorter rækker og sæder
         const sortedRowNums = Object.keys(rows).sort((a, b) => a - b);
 
         sortedRowNums.forEach(rowNum => {
             const rowDiv = document.createElement('div');
             rowDiv.className = 'seat-row';
 
-            // Label for række
             const rowLabel = document.createElement('span');
             rowLabel.style.width = '30px';
             rowLabel.style.lineHeight = '30px';
@@ -222,7 +211,6 @@
             selectedSeats.push(seat);
             element.classList.add('selected');
         }
-
         updateSummary();
     }
 
@@ -246,7 +234,6 @@
         seatsList.textContent = selectedSeats.map(s => `R${s.rowNumber}-S${s.seatNumber}`).join(', ');
         countSpan.textContent = selectedSeats.length;
 
-        // Beregn pris via backend
         try {
             const response = await fetch('/kino/reservations/price', {
                 method: 'POST',
@@ -259,7 +246,6 @@
             const priceData = await response.json();
             priceSpan.textContent = priceData.totalPrice;
 
-            // Opdater breakdown
             breakdownList.innerHTML = '';
             priceData.breakdown.forEach(item => {
                 const li = document.createElement('li');
@@ -269,7 +255,6 @@
                 breakdownList.appendChild(li);
             });
             breakdownDiv.style.display = 'block';
-
             confirmBtn.disabled = false;
         } catch (error) {
             console.error('Fejl ved prisberegning:', error);
@@ -281,6 +266,13 @@
         if (!userJson) {
             document.getElementById('login-notice').style.display = 'block';
             return;
+        }
+
+        // Slet gammel reservation hvis vi er i redigeringstilstand
+        const editingId = sessionStorage.getItem('editingReservationId');
+        if (editingId) {
+            await fetch(`/kino/reservations/${editingId}`, { method: 'DELETE' });
+            sessionStorage.removeItem('editingReservationId');
         }
 
         const user = JSON.parse(userJson);
@@ -299,8 +291,8 @@
             });
 
             if (response.ok) {
-                alert('Reservation gennemført!');
-                window.location.href = 'index.html';
+                alert(editingId ? 'Reservation opdateret!' : 'Reservation gennemført!');
+                window.location.href = 'my-reservations.html';
             } else {
                 const errorText = await response.text();
                 alert('Fejl ved reservation: ' + errorText);
