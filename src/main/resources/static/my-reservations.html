@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mine Reservationer – KinoXP</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="navbar">
+  <a href="index.html">← Tilbage til film</a>
+  <a href="#" id="logoutLink">Log ud</a>
+  <span id="userName" style="color:#d32f2f; margin-left:15px;"></span>
+</div>
+
+<div class="container">
+  <h1>Mine Reservationer</h1>
+  <div id="reservations-container">
+    <p style="text-align:center; color:#888; margin-top:60px;">⏳ Henter dine reservationer...</p>
+  </div>
+</div>
+
+<script>
+  const OMDB_API_KEY = '8e71e427';
+
+  async function getPoster(title) {
+    try {
+      const res = await fetch(`https://www.omdbapi.com/?t=${encodeURIComponent(title)}&apikey=${OMDB_API_KEY}`);
+      const data = await res.json();
+      return data.Poster && data.Poster !== 'N/A' ? data.Poster : null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function formatDateTime(dateTime) {
+    if (!dateTime) return '–';
+    const date = new Date(dateTime);
+    return date.toLocaleDateString('da-DK') + ' kl. ' +
+            date.toLocaleTimeString('da-DK', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function formatBookingStatus(status) {
+    const map = {
+      'PENDING':   '<span style="background:#ff9800; color:white; padding:3px 9px; border-radius:5px; font-size:12px;">⏳ Afventer</span>',
+      'CONFIRMED': '<span style="background:#4CAF50; color:white; padding:3px 9px; border-radius:5px; font-size:12px;">✅ Bekræftet</span>',
+      'CANCELLED': '<span style="background:#9e9e9e; color:white; padding:3px 9px; border-radius:5px; font-size:12px;">❌ Annulleret</span>',
+      'EXPIRED':   '<span style="background:#b71c1c; color:white; padding:3px 9px; border-radius:5px; font-size:12px;">⌛ Udløbet</span>'
+    };
+    return map[status] || status;
+  }
+
+  function formatPaymentStatus(status) {
+    const map = {
+      'AWAITING':  '<span style="background:#ff9800; color:white; padding:3px 9px; border-radius:5px; font-size:12px;">💳 Afventer betaling</span>',
+      'PAID':      '<span style="background:#4CAF50; color:white; padding:3px 9px; border-radius:5px; font-size:12px;">💳 Betalt</span>',
+      'REFUNDED':  '<span style="background:#2196F3; color:white; padding:3px 9px; border-radius:5px; font-size:12px;">💳 Refunderet</span>',
+      'CANCELLED': '<span style="background:#9e9e9e; color:white; padding:3px 9px; border-radius:5px; font-size:12px;">💳 Annulleret</span>'
+    };
+    return map[status] || status;
+  }
+
+  async function deleteReservation(reservationId) {
+    if (!confirm('Er du sikker på, at du vil annullere denne reservation?')) return;
+
+    const response = await fetch(`/kino/reservations/${reservationId}`, {
+      method: 'DELETE'
+    });
+
+    if (response.ok) {
+      alert('Reservation annulleret.');
+      loadReservations();
+    } else {
+      alert('Kunne ikke annullere reservationen. Prøv igen.');
+    }
+  }
+
+  function editReservation(reservationId, movieId) {
+    if (!confirm('Vil du ændre denne reservation? Den nuværende reservation slettes når du bekræfter en ny.')) return;
+    sessionStorage.setItem('editingReservationId', reservationId);
+    window.location.href = `booking.html?movieId=${movieId}`;
+  }
+
+  async function loadReservations() {
+    const userRaw = localStorage.getItem('user');
+    if (!userRaw) {
+      alert('Du skal logge ind for at se dine reservationer.');
+      window.location.href = 'login.html';
+      return;
+    }
+
+    const user = JSON.parse(userRaw);
+    document.getElementById('userName').textContent = `Logget ind som: ${user.name}`;
+    document.getElementById('logoutLink').addEventListener('click', (e) => {
+      e.preventDefault();
+      localStorage.removeItem('user');
+      window.location.href = 'index.html';
+    });
+
+    const container = document.getElementById('reservations-container');
+
+    try {
+      const response = await fetch(`/kino/reservations/customer/${encodeURIComponent(user.name)}`);
+      const reservations = await response.json();
+
+      reservations.sort((a, b) => new Date(a.showingStartTime) - new Date(b.showingStartTime));
+
+      if (!reservations || reservations.length === 0) {
+        container.innerHTML = `
+          <div style="text-align:center; color:#888; margin-top:60px; font-size:18px;">
+            <p>Du har ingen reservationer endnu.</p>
+            <a href="index.html" style="color:#d32f2f; text-decoration:none;">🎬 Find en film og bestil nu</a>
+          </div>`;
+        return;
+      }
+
+      container.innerHTML = '';
+
+      for (const res of reservations) {
+        const posterUrl = await getPoster(res.movieTitle);
+        const card = document.createElement('div');
+        card.className = 'movie-card';
+        card.innerHTML = `
+          ${posterUrl ? `<img src="${posterUrl}" alt="${res.movieTitle}" style="width:70px; border-radius:5px; margin-right:15px; flex-shrink:0;">` : ''}
+          <div class="movie-info" style="flex:1;">
+            <h2>${res.movieTitle ?? 'Film'}</h2>
+            <p>📅 ${formatDateTime(res.showingStartTime)}</p>
+            <p>🏛 Sal: ${res.theaterName ?? '–'}</p>
+            <p><span class="badge">Reservation #${res.reservationId}</span></p>
+            ${res.totalPrice != null ? `<p>💰 Pris: <strong>${res.totalPrice} kr.</strong></p>` : ''}
+            <p style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap;">
+              ${formatBookingStatus(res.bookingStatus)}
+              ${formatPaymentStatus(res.paymentStatus)}
+            </p>
+          </div>
+          <div style="flex-shrink:0; display:flex; flex-direction:column; gap:8px;">
+            <button class="btn" style="background:#555;" onclick="editReservation(${res.reservationId}, ${res.movieId})">Rediger</button>
+            <button class="btn" style="background:#b71c1c;" onclick="deleteReservation(${res.reservationId})">Annullér</button>
+          </div>
+        `;
+        container.appendChild(card);
+      }
+
+    } catch (error) {
+      console.error('Fejl ved hentning af reservationer:', error);
+      container.innerHTML = '<p style="text-align:center; color:#888; margin-top:60px;">⚠️ Kunne ikke hente reservationer. Prøv igen senere.</p>';
+    }
+  }
+
+  loadReservations();
+</script>
+</body>
+</html>
