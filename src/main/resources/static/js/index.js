@@ -148,7 +148,7 @@ async function loadMovies() {
             const card = document.createElement('div');
             card.className = 'movie-card';
             card.innerHTML = `
-                ${posterUrl ? `<img src="${posterUrl}" alt="${movie.title}" style="width:70px; border-radius:5px; margin-right:15px; flex-shrink:0;">` : ''}
+                ${posterUrl ? `<img src="${posterUrl}" alt="${movie.title}" class="movie-poster" loading="lazy">` : ''}
                 <div class="movie-info" style="flex:1;">
                     <h2>${movie.title} (${movie.releaseYear})</h2>
                     <p>
