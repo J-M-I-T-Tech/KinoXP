@@ -398,7 +398,7 @@ async function createMovie() {
     };
 
     try {
-        const response = await fetch(`/kino/movies/create?userId=${adminUserId}`, {
+        const response = await fetch(`/kino/movies?userId=${adminUserId}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(movie)
@@ -433,8 +433,55 @@ async function deleteMovie(movieId) {
     }
 }
 
-function openEditMovie(movieId) {
-    window.location.href = `edit-movie.html?movieId=${movieId}`;
+async function openEditMovie(movieId) {
+
+    const response = await fetch(`/kino/movies/${movieId}`);
+    const movie = await response.json();
+
+    showCreateMovie();
+
+    document.getElementById("title").value = movie.title;
+    document.getElementById("beskrivelse").value = movie.description;
+    document.getElementById("genre").value = movie.genre;
+    document.getElementById("ageLimit").value = movie.ageLimit;
+    document.getElementById("language").value = movie.language;
+    document.getElementById("format").value = movie.format;
+    document.getElementById("duration").value = movie.durationInMinutes;
+    document.getElementById("releaseYear").value = movie.releaseYear;
+
+    const form = document.querySelector("#createMovieForm form");
+
+    form.onsubmit = async function(e){
+        e.preventDefault();
+
+        const user = JSON.parse(localStorage.getItem("user"));
+
+        const updatedMovie = {
+            title: document.getElementById("title").value,
+            description: document.getElementById("beskrivelse").value,
+            genre: document.getElementById("genre").value,
+            ageLimit: document.getElementById("ageLimit").value,
+            language: document.getElementById("language").value,
+            format: document.getElementById("format").value,
+            durationInMinutes: parseInt(document.getElementById("duration").value),
+            releaseYear: parseInt(document.getElementById("releaseYear").value)
+        };
+
+        const response = await fetch(`/kino/movies/${movieId}?userId=${user.userId}`,{
+            method:"PUT",
+            headers:{
+                "Content-Type":"application/json"
+            },
+            body:JSON.stringify(updatedMovie)
+        });
+
+        if(response.ok){
+            alert("Film opdateret!");
+            showAllMovies();
+        }else{
+            alert("Fejl ved redigering");
+        }
+    }
 }
 
 checkUserLogin();
