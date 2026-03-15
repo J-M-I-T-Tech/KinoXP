@@ -5,7 +5,7 @@ function hideAdminForms(){
 function showCreateMovie(){
     hideAdminForms();
     document.getElementById("createMovieForm").style.display = "block";
-}
+
 
 async function createMovie(){
 
