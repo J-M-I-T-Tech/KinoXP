@@ -204,7 +204,7 @@
 
         try {
 
-            const response = await fetch(`/kino/movies?userId=${adminUserId}`, {
+            const response = await fetch(`/kino/movies/create?userId=${adminUserId}`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(movie)
@@ -263,7 +263,7 @@
     }
 
     function formatLanguage(lang) {
-        const map = { 'DANSK': '🌐 Dansk', 'ENGELSK': '🌐 Engelsk' };''
+        const map = { 'DANSK': '🌐 Dansk', 'ENGELSK': '🌐 Engelsk' };
         return map[lang] || lang;
     }
 
@@ -346,6 +346,11 @@
                     <div style="display:flex; gap:10px; flex-shrink:0;">
                         <button class="btn btn-secondary" onclick="window.location.href='movie.html?movieId=${movie.movieId}'">Læs mere</button>
                         <button class="btn" onclick="bookMovie(${movie.movieId})">Bestil nu</button>
+                         ${isAdmin ? `
+        <button class="btn" style="background:#555;" onclick="openEditMovie(${movie.movieId})">Rediger</button>
+        <button class="btn btn-danger" onclick="deleteMovie(${movie.movieId})">Slet</button>
+    ` : ""}
+</div>
 
                     </div>
                 `;
@@ -579,6 +584,9 @@
             const errorText = await response.text();
             alert("Kun admin kan slette film: " + errorText);
         }
+    }
+    function openEditMovie(movieId){
+        window.location.href = `edit-movie.html?movieId=${movieId}`;
     }
 
     checkUserLogin();

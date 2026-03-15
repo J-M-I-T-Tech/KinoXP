@@ -56,7 +56,7 @@ public class MovieController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @PostMapping
+    @PostMapping("/create")
     public ResponseEntity<MovieResponse> createMovie(@RequestBody MovieRequest request, @RequestParam Long userId) {
 
         if (!AdminChecker.isAdmin(userService, userId)) {
