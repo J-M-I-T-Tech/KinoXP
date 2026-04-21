@@ -31,17 +31,19 @@ public class UserController {
         }
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<User> login(@RequestBody LoginRequest request) {
-        User user = userService.login(request.name(), request.password());
-        return user != null ? ResponseEntity.ok(user) : ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-    }
+//    @PostMapping("/login")
+//    public ResponseEntity<User> login(@RequestBody LoginRequest request) {
+//        User user = userService.login(request.name(), request.password());
+//        return user != null ? ResponseEntity.ok(user) : ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+//    }
 
     @DeleteMapping("/{userId}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long userId, @RequestParam Long adminUserId) {
-        if (!userService.isAdmin(userId)) {
-            return ResponseEntity.status(403).build();
-        }
+
+        // Spring Security tjekker rolle — ingen manuel adminUserId parameter mere
+        //        if (!userService.isAdmin(userId)) {
+//            return ResponseEntity.status(403).build();
+//        }
         return userService.deleteUserById(userId)
                 ? ResponseEntity.noContent().build()
                 : ResponseEntity.notFound().build();

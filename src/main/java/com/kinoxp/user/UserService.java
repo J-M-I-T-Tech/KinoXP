@@ -1,6 +1,8 @@
 package com.kinoxp.user;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.util.pattern.PathPatternParser;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -11,10 +13,16 @@ import java.util.Optional;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final PathPatternParser pathPatternParser;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, PathPatternParser pathPatternParser) {
         this.userRepository = userRepository;
+        this.pathPatternParser = pathPatternParser;
+        this.passwordEncoder= passwordEncoder;
     }
+
+
 
     public User createUser(UserRegistrationRequest request) {
         if (!isOldEnough(request.dateOfBirth())) {
@@ -25,6 +33,8 @@ public class UserService {
         user.setDateOfBirth(request.dateOfBirth());
         user.setRole(request.role());
         user.setPassword(request.password());
+        // kryptere password
+        user.setPassword(passwordEncoder.encode(request.password()));
         return userRepository.save(user);
     }
 
@@ -32,9 +42,9 @@ public class UserService {
         return Period.between(dateOfBirth, LocalDate.now()).getYears() >= 13;
     }
 
-    public User login(String name, String password) {
-        return userRepository.findByNameAndPassword(name, password).orElse(null);
-    }
+//    public User login(String name, String password) {
+//        return userRepository.findByNameAndPassword(name, password).orElse(null);
+//    }
 
     public List<User> getAllUsers() {
         return userRepository.findAll();

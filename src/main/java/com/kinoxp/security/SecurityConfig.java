@@ -8,10 +8,10 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
-import java.net.http.HttpClient;
 
 @Configuration
 @EnableMethodSecurity
@@ -22,22 +22,47 @@ public class SecurityConfig {
         http                .authorizeHttpRequests(auth -> auth
                          .requestMatchers("/html/**", "/css/**", "/js/**").permitAll()
                          .requestMatchers(HttpMethod.POST, "/kino/users/login").permitAll()
-                          .requestMatchers(HttpMethod.GET, "/kino/movies/**").permitAll()
-                         .requestMatchers(HttpMethod.POST, "/kino/movies/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/kino/users").permitAll()                          .requestMatchers(HttpMethod.GET, "/kino/movies/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/kino/movies/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/kino/movies/**").hasRole("ADMIN")
                           .requestMatchers(HttpMethod.PUT, "/kino/movies/**").hasRole("ADMIN")
                           .requestMatchers(HttpMethod.DELETE, "/kino/movies/**").hasRole("ADMIN")
 
                            .anyRequest().authenticated()
                 )
-          .formLogin(form -> form.disable())
-                  .httpBasic(basic -> basic.disable())
-                    .csrf(csrf -> csrf.disable());
+
+                .formLogin( form -> form
+                        .loginProcessingUrl("/kino/users/login")
+                        .defaultSuccessUrl("/index.html/login.html")
+                        .permitAll()
+
+                )
+
+                .logout(logout -> logout
+                  .logoutUrl("/kino/users/logout")
+                        .logoutSuccessUrl("html/login.html")
+                        .permitAll()
+
+
+                )
+                    .csrf(csrf ->csrf.disable ()); 
+
+
+
+//          .formLogin(form -> form.disable())
+//                  .httpBasic(basic -> basic.disable())
+//                    .csrf(csrf -> csrf.disable());
 
                    return http.build();
 
     }         
 
 
+
+    @Bean
+    BCryptPasswordEncoder bCryptPasswordEncoder (){
+        return new BCryptPasswordEncoder();
+    }
 
     @Bean
     public UserDetailsService userDetailsService() {

@@ -11,12 +11,15 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
 
+    @Column(nullable = false, unique = true)
     private String name;
+
     private LocalDate dateOfBirth;
 
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    @Column(nullable = false)
     private String password;
 
     public User() {}
