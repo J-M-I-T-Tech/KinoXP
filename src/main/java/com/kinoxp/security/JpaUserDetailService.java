@@ -13,7 +13,7 @@ import javax.naming.NameNotFoundException;
 import java.util.List;
 import java.util.stream.Collectors;
 
-
+@Service
 public class JpaUserDetailService implements UserDetailsService {
 
     private final UserRepository userRepository;

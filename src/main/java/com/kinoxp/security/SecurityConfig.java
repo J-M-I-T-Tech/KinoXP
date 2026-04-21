@@ -1,5 +1,6 @@
 package com.kinoxp.security;
 
+import com.kinoxp.user.UserRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -18,7 +19,7 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http){
+    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
         http                .authorizeHttpRequests(auth -> auth
                          .requestMatchers("/html/**", "/css/**", "/js/**").permitAll()
                          .requestMatchers(HttpMethod.POST, "/kino/users/login").permitAll()
@@ -32,15 +33,16 @@ public class SecurityConfig {
                 )
 
                 .formLogin( form -> form
+                        .loginPage("/html/login.html")
                         .loginProcessingUrl("/kino/users/login")
-                        .defaultSuccessUrl("/index.html/login.html")
+                        .defaultSuccessUrl("/index.html", true)
                         .permitAll()
 
                 )
 
                 .logout(logout -> logout
                   .logoutUrl("/kino/users/logout")
-                        .logoutSuccessUrl("html/login.html")
+                        .logoutSuccessUrl("/html/login.html")
                         .permitAll()
 
 
@@ -64,15 +66,9 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    @Bean
-    public UserDetailsService userDetailsService() {
-        UserDetails admin = User.withDefaultPasswordEncoder()
-            .username("admin")
-            .password("1234")
-            .roles("ADMIN")
-            .build();
-
-        return new InMemoryUserDetailsManager(admin);
-
+    @Bean UserDetailsService userDetailsService(UserRepository userRepository){
+        return new JpaUserDetailService(userRepository);
     }
 }
+
+
