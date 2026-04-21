@@ -1,7 +1,5 @@
 package com.kinoxp.showing;
 
-import com.kinoxp.shared.AdminChecker;
-import com.kinoxp.user.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,11 +11,9 @@ import java.util.List;
 public class ShowingController {
 
     private final ShowingService showingService;
-    private final UserService userService;
 
-    public ShowingController(ShowingService showingService, UserService userService) {
+    public ShowingController(ShowingService showingService) {
         this.showingService = showingService;
-        this.userService = userService;
     }
 
     @GetMapping("/movie/{movieId}")
@@ -31,32 +27,20 @@ public class ShowingController {
     }
 
     @PostMapping
-    public ResponseEntity<ShowingResponse> createShowing(@RequestBody ShowingRequest request,
-                                                         @RequestParam Long userId) {
-        if (!AdminChecker.isAdmin(userService, userId)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
+    public ResponseEntity<ShowingResponse> createShowing(@RequestBody ShowingRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(showingService.createShowing(request));
     }
 
     @PutMapping("/{showingId}")
     public ResponseEntity<ShowingResponse> updateShowing(@PathVariable Long showingId,
-                                                         @RequestBody ShowingRequest request,
-                                                         @RequestParam Long userId) {
-        if (!AdminChecker.isAdmin(userService, userId)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
+                                                         @RequestBody ShowingRequest request) {
         return showingService.updateShowing(showingId, request)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{showingId}")
-    public ResponseEntity<Void> deleteShowing(@PathVariable Long showingId,
-                                              @RequestParam Long userId) {
-        if (!AdminChecker.isAdmin(userService, userId)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
+    public ResponseEntity<Void> deleteShowing(@PathVariable Long showingId) {
         return showingService.deleteShowing(showingId)
                 ? ResponseEntity.noContent().build()
                 : ResponseEntity.notFound().build();

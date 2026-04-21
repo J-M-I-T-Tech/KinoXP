@@ -1,9 +1,6 @@
 package com.kinoxp.movie;
 
-import com.kinoxp.shared.AdminChecker;
-import com.kinoxp.user.UserService;
 import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,11 +12,9 @@ import java.util.List;
 public class MovieController {
 
     private final MovieService movieService;
-    private final UserService userService;
 
-    public MovieController(MovieService movieService, UserService userService) {
+    public MovieController(MovieService movieService) {
         this.movieService = movieService;
-        this.userService = userService;
     }
 
     @GetMapping
@@ -42,39 +37,41 @@ public class MovieController {
         return ResponseEntity.ok(movieService.getMoviesByTitle(title));
     }
 
-    @GetMapping("/{movieId}")
+    @GetMapping("/create")
+    public ResponseEntity<Void> openCreateMoviePage() {
+        return ResponseEntity.status(302)
+                .location(URI.create("/html/index.html?openCreateMovie=true"))
+                .build();
+    }
+
+    @GetMapping("/{movieId:\\d+}")
     public ResponseEntity<MovieResponse> getMovieById(@PathVariable Long movieId) {
         return movieService.getMovieById(movieId)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @PostMapping("/create")
-    public ResponseEntity<MovieResponse> createMovie(@Valid @RequestBody MovieRequest request, @RequestParam Long userId) {
-        if (!AdminChecker.isAdmin(userService, userId)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
+    @PostMapping
+    public ResponseEntity<MovieResponse> createMovie(@Valid @RequestBody MovieRequest request) {
         MovieResponse created = movieService.createMovie(request);
         return ResponseEntity.created(URI.create("/kino/movies/" + created.movieId())).body(created);
     }
 
-    @PutMapping("/{movieId}")
+    @PostMapping("/create")
+    public ResponseEntity<MovieResponse> createMovieFromCreatePath(@Valid @RequestBody MovieRequest request) {
+        return createMovie(request);
+    }
+
+    @PutMapping("/{movieId:\\d+}")
     public ResponseEntity<MovieResponse> updateMovie(@PathVariable Long movieId,
-                                                     @Valid @RequestBody MovieRequest request,
-                                                     @RequestParam Long userId) {
-        if (!AdminChecker.isAdmin(userService, userId)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
+                                                     @Valid @RequestBody MovieRequest request) {
         return movieService.updateMovie(movieId, request)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @DeleteMapping("/{movieId}")
-    public ResponseEntity<Void> deleteMovie(@PathVariable Long movieId, @RequestParam Long userId) {
-        if (!AdminChecker.isAdmin(userService, userId)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
+    @DeleteMapping("/{movieId:\\d+}")
+    public ResponseEntity<Void> deleteMovie(@PathVariable Long movieId) {
         return movieService.deleteMovieById(movieId)
                 ? ResponseEntity.noContent().build()
                 : ResponseEntity.notFound().build();

@@ -60,6 +60,10 @@ public class UserService {
         return userRepository.findById(userId).orElse(null);
     }
 
+    public User findByName(String name) {
+        return userRepository.findFirstByNameIgnoreCaseOrderByUserIdAsc(name).orElse(null);
+    }
+
     public boolean isAdmin(Long userId) {
         Optional<User> user = userRepository.findById(userId);
         return user.isPresent() && user.get().getRole() == Role.ADMIN;

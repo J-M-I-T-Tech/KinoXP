@@ -2,6 +2,31 @@ const OMDB_API_KEY = '8e71e427';
 
 const showingsCache = {};
 
+function getCsrfToken() {
+    const match = document.cookie.match(/(?:^|;\s*)XSRF-TOKEN=([^;]+)/);
+    return match ? decodeURIComponent(match[1]) : null;
+}
+
+function withCsrfHeaders(extraHeaders = {}) {
+    const token = getCsrfToken();
+    return token ? { ...extraHeaders, 'X-XSRF-TOKEN': token } : extraHeaders;
+}
+
+async function performLogout() {
+    try {
+        await fetch('/kino/users/logout', {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: withCsrfHeaders()
+        });
+    } catch (error) {
+        console.error('Fejl ved logout:', error);
+    } finally {
+        localStorage.removeItem('user');
+        window.location.href = 'index.html';
+    }
+}
+
 function hideAll() {
     document.getElementById("createMovieForm").style.display = "none";
     document.getElementById("movies-container").style.display = "none";
@@ -61,11 +86,9 @@ function checkUserLogin() {
             document.getElementById("adminPanel").style.display = "block";
         }
 
-        logoutLink.onclick = (e) => {
+        logoutLink.onclick = async (e) => {
             e.preventDefault();
-            localStorage.removeItem('user');
-            alert('Du er nu logget ud.');
-            window.location.href = 'index.html';
+            await performLogout();
         };
     }
 }
@@ -327,7 +350,6 @@ function closeModal() {
 }
 
 async function saveShowing() {
-    const user = JSON.parse(localStorage.getItem("user"));
     const editId = document.getElementById('editShowingId').value;
 
     const body = {
@@ -340,13 +362,13 @@ async function saveShowing() {
 
     const isEdit = !!editId;
     const url = isEdit
-        ? `/kino/showings/${editId}?userId=${user.userId}`
-        : `/kino/showings?userId=${user.userId}`;
+        ? `/kino/showings/${editId}`
+        : `/kino/showings`;
 
     try {
         const response = await fetch(url, {
             method: isEdit ? 'PUT' : 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: withCsrfHeaders({ 'Content-Type': 'application/json' }),
             body: JSON.stringify(body)
         });
 
@@ -365,11 +387,10 @@ async function saveShowing() {
 async function deleteShowing(showingId) {
     if (!confirm('Er du sikker på at du vil slette denne visning?')) return;
 
-    const user = JSON.parse(localStorage.getItem("user"));
-
     try {
-        const response = await fetch(`/kino/showings/${showingId}?userId=${user.userId}`, {
-            method: 'DELETE'
+        const response = await fetch(`/kino/showings/${showingId}`, {
+            method: 'DELETE',
+            headers: withCsrfHeaders()
         });
 
         if (response.ok) {
@@ -383,9 +404,6 @@ async function deleteShowing(showingId) {
 }
 
 async function createMovie() {
-    const user = JSON.parse(localStorage.getItem("user"));
-    const adminUserId = user.userId;
-
     const movie = {
         title: document.getElementById("title").value,
         description: document.getElementById("beskrivelse").value,
@@ -398,9 +416,9 @@ async function createMovie() {
     };
 
     try {
-        const response = await fetch(`/kino/movies/create?userId=${adminUserId}`, {
+        const response = await fetch(`/kino/movies/create`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: withCsrfHeaders({ "Content-Type": "application/json" }),
             body: JSON.stringify(movie)
         });
 
@@ -418,10 +436,9 @@ async function createMovie() {
 }
 
 async function deleteMovie(movieId) {
-    const user = JSON.parse(localStorage.getItem("user"));
-
-    const response = await fetch(`/kino/movies/${movieId}?userId=${user.userId}`, {
-        method: "DELETE"
+    const response = await fetch(`/kino/movies/${movieId}`, {
+        method: "DELETE",
+        headers: withCsrfHeaders()
     });
 
     if (response.ok) {
@@ -454,8 +471,6 @@ async function openEditMovie(movieId) {
     form.onsubmit = async function(e){
         e.preventDefault();
 
-        const user = JSON.parse(localStorage.getItem("user"));
-
         const updatedMovie = {
             title: document.getElementById("title").value,
             description: document.getElementById("beskrivelse").value,
@@ -467,11 +482,9 @@ async function openEditMovie(movieId) {
             releaseYear: parseInt(document.getElementById("releaseYear").value)
         };
 
-        const response = await fetch(`/kino/movies/${movieId}?userId=${user.userId}`,{
+        const response = await fetch(`/kino/movies/${movieId}`,{
             method:"PUT",
-            headers:{
-                "Content-Type":"application/json"
-            },
+            headers: withCsrfHeaders({ "Content-Type":"application/json" }),
             body:JSON.stringify(updatedMovie)
         });
 
@@ -485,4 +498,13 @@ async function openEditMovie(movieId) {
 }
 
 checkUserLogin();
-loadMovies();
+const params = new URLSearchParams(window.location.search);
+const openCreateMovieFromUrl = params.get('openCreateMovie') === 'true';
+const currentUserRaw = localStorage.getItem("user");
+const currentUser = currentUserRaw ? JSON.parse(currentUserRaw) : null;
+
+if (openCreateMovieFromUrl && currentUser && currentUser.role === "ADMIN") {
+    showCreateMovie();
+} else {
+    loadMovies();
+}

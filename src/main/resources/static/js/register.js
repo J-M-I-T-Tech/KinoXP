@@ -3,6 +3,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const form = document.getElementById("registerForm");
     const errorDiv = document.getElementById("errorMessage");
     const dobInput = document.getElementById("dateOfBirth");
+    const getCsrfToken = () => {
+        const match = document.cookie.match(/(?:^|;\s*)XSRF-TOKEN=([^;]+)/);
+        return match ? decodeURIComponent(match[1]) : null;
+    };
 
     // Sæt maks dato (mindst 13 år)
     const today = new Date();
@@ -41,7 +45,8 @@ document.addEventListener("DOMContentLoaded", () => {
             const response = await fetch("/kino/users", {
                 method: "POST",
                 headers: {
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    ...(getCsrfToken() ? { "X-XSRF-TOKEN": getCsrfToken() } : {})
                 },
                 body: JSON.stringify({
                     name,
@@ -53,11 +58,41 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (response.ok) {
                 const userData = await response.json();
+                const fallbackUser = {
+                    userId: userData.userId,
+                    name: userData.name,
+                    role: userData.role
+                };
 
-                localStorage.setItem(
-                    "user",
-                    JSON.stringify(userData)
-                );
+                const loginResponse = await fetch('/kino/users/login', {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        ...(getCsrfToken() ? { 'X-XSRF-TOKEN': getCsrfToken() } : {})
+                    },
+                    body: new URLSearchParams({
+                        username: userData.name,
+                        password
+                    })
+                });
+
+                if (loginResponse.ok) {
+                    const meResponse = await fetch('/kino/users/me', {
+                        credentials: 'same-origin',
+                        headers: { 'Accept': 'application/json' }
+                    });
+                    const contentType = meResponse.headers.get('content-type') || '';
+
+                    if (meResponse.ok && contentType.includes('application/json')) {
+                        const me = await meResponse.json();
+                        localStorage.setItem("user", JSON.stringify(me));
+                    } else {
+                        localStorage.setItem("user", JSON.stringify(fallbackUser));
+                    }
+                } else {
+                    localStorage.setItem("user", JSON.stringify(fallbackUser));
+                }
 
                 window.location.href = "index.html";
             } else {

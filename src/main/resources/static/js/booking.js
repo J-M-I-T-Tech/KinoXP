@@ -11,6 +11,11 @@ let theaterId = null;
 let movieData = null;
 let currentShowing = null;
 
+function getCsrfToken() {
+    const match = document.cookie.match(/(?:^|;\s*)XSRF-TOKEN=([^;]+)/);
+    return match ? decodeURIComponent(match[1]) : null;
+}
+
 function formatDateTime(dateTimeStr) {
     const date = new Date(dateTimeStr);
     return date.toLocaleDateString('da-DK', {
@@ -237,6 +242,7 @@ async function confirmBooking() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                ...(getCsrfToken() ? { 'X-XSRF-TOKEN': getCsrfToken() } : {})
             },
             body: JSON.stringify({
                 showingId: currentShowing.showingId,

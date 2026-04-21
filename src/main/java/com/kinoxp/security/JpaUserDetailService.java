@@ -7,13 +7,9 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.stereotype.Service;
 
-import javax.naming.NameNotFoundException;
 import java.util.List;
-import java.util.stream.Collectors;
 
-@Service
 public class JpaUserDetailService implements UserDetailsService {
 
     private final UserRepository userRepository;
@@ -25,7 +21,7 @@ public class JpaUserDetailService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String name) throws UsernameNotFoundException {
-        User user = userRepository.findByName(name)
+        User user = userRepository.findFirstByNameIgnoreCaseOrderByUserIdAsc(name)
                 .orElseThrow(() -> new UsernameNotFoundException("Bruger ikke fundet: " + name));
 
         return org.springframework.security.core.userdetails.User.builder()

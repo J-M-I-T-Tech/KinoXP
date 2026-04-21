@@ -51,29 +51,15 @@ class DataInitializer {
     @Bean
     public CommandLineRunner initData() {
         return args -> {
+            migratePlaintextPasswordsToBcrypt();
+
+            User user1 = ensureUserExists("Alice", Role.ADMIN, "pw");
+            User user2 = ensureUserExists("Birthe", Role.CUSTOMER, "pw");
+            User user3 = ensureUserExists("Mikkel", Role.EMPLOYEE, "pw");
+
+            List<User> users = List.of(user1, user2, user3);
 
             if (movieRepository.count() == 0) {
-
-                // --- Brugere ---
-                User user1 = new User();
-                user1.setName("Alice");
-                user1.setRole(Role.ADMIN);
-                user1.setPassword(passwordEncoder.encode("pw"));
-                userRepository.save(user1);
-
-                User user2 = new User();
-                user2.setName("Birthe");
-                user2.setRole(Role.CUSTOMER);
-                user2.setPassword(passwordEncoder.encode("pw"));
-                userRepository.save(user2);
-
-                User user3 = new User();
-                user3.setName("Mikkel");
-                user3.setRole(Role.EMPLOYEE);
-                user3.setPassword(passwordEncoder.encode("pw"));
-                userRepository.save(user3);
-
-                List<User> users = List.of(user1, user2, user3);
 
                 // --- Film ---
                 Movie movie1 = movieRepository.save(new Movie(null, "Inception",
@@ -194,6 +180,44 @@ class DataInitializer {
 
             } // end if movieRepository.count() == 0
         };
+    }
+
+    private User ensureUserExists(String name, Role role, String rawPassword) {
+        List<User> usersWithSameName = userRepository.findAllByNameIgnoreCaseOrderByUserIdAsc(name);
+        if (!usersWithSameName.isEmpty()) {
+            User existing = usersWithSameName.get(0);
+            boolean needsUpdate = existing.getRole() != role || !passwordEncoder.matches(rawPassword, existing.getPassword());
+            if (needsUpdate) {
+                existing.setRole(role);
+                existing.setPassword(passwordEncoder.encode(rawPassword));
+                return userRepository.save(existing);
+            }
+            return existing;
+        }
+
+        User user = new User();
+        user.setName(name);
+        user.setRole(role);
+        user.setPassword(passwordEncoder.encode(rawPassword));
+        return userRepository.save(user);
+    }
+
+    private void migratePlaintextPasswordsToBcrypt() {
+        List<User> allUsers = userRepository.findAll();
+        for (User user : allUsers) {
+            String storedPassword = user.getPassword();
+            if (storedPassword == null || storedPassword.isBlank()) {
+                continue;
+            }
+
+            // BCrypt hashes start with $2a$, $2b$ or $2y$.
+            if (storedPassword.startsWith("$2a$") || storedPassword.startsWith("$2b$") || storedPassword.startsWith("$2y$")) {
+                continue;
+            }
+
+            user.setPassword(passwordEncoder.encode(storedPassword));
+            userRepository.save(user);
+        }
     }
 
     private void createSeatsForTheater(Theater theater, SeatRepository seatRepository) {

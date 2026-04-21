@@ -1,6 +1,10 @@
 document.addEventListener("DOMContentLoaded", () => {
 
     const form = document.getElementById("loginForm");
+    const getCsrfToken = () => {
+        const match = document.cookie.match(/(?:^|;\s*)XSRF-TOKEN=([^;]+)/);
+        return match ? decodeURIComponent(match[1]) : null;
+    };
 
     form.addEventListener("submit", async (e) => {
         e.preventDefault();
@@ -12,18 +16,34 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
             const response = await fetch('/kino/users/login', {
                 method: 'POST',
+                credentials: 'same-origin',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    ...(getCsrfToken() ? { 'X-XSRF-TOKEN': getCsrfToken() } : {})
                 },
-                body: JSON.stringify({ name, password })
+                body: new URLSearchParams({
+                    username: name,
+                    password: password
+                })
             });
 
             if (response.ok) {
-                const userData = await response.json();
+                const meResponse = await fetch('/kino/users/me', {
+                    credentials: 'same-origin',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+                const contentType = meResponse.headers.get('content-type') || '';
 
-                localStorage.setItem('user', JSON.stringify(userData));
+                if (!meResponse.ok || !contentType.includes('application/json')) {
+                    errorDiv.textContent = 'Forkert navn eller adgangskode';
+                    return;
+                }
 
-                window.location.href = 'index.html';
+                const me = await meResponse.json();
+                localStorage.setItem('user', JSON.stringify(me));
+                window.location.href = '/html/index.html';
             } else {
                 errorDiv.textContent = 'Forkert navn eller adgangskode';
             }

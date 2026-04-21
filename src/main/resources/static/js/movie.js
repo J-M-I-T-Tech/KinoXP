@@ -1,5 +1,25 @@
 const OMDB_API_KEY = '8e71e427';
 
+function getCsrfToken() {
+    const match = document.cookie.match(/(?:^|;\s*)XSRF-TOKEN=([^;]+)/);
+    return match ? decodeURIComponent(match[1]) : null;
+}
+
+async function performLogout() {
+    try {
+        await fetch('/kino/users/logout', {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: getCsrfToken() ? { 'X-XSRF-TOKEN': getCsrfToken() } : {}
+        });
+    } catch (error) {
+        console.error('Fejl ved logout:', error);
+    } finally {
+        localStorage.removeItem('user');
+        window.location.href = 'index.html';
+    }
+}
+
 function checkUserLogin() {
     const user = localStorage.getItem('user');
 
@@ -17,11 +37,9 @@ function checkUserLogin() {
         userName.style.display = 'inline';
         userName.textContent = `Logget ind som: ${userData.name}`;
 
-        logoutLink.addEventListener('click', (e) => {
+        logoutLink.addEventListener('click', async (e) => {
             e.preventDefault();
-            localStorage.removeItem('user');
-            alert('Du er nu logget ud.');
-            window.location.href = 'index.html';
+            await performLogout();
         });
     }
 }
