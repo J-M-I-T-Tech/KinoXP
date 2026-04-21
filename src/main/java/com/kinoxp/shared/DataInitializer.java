@@ -125,7 +125,7 @@ class DataInitializer {
                         showingRepository.save(new Showing(null, movie, theater, startTime, endTime, ShowingStatus.UPCOMING));
                     }
                 }
-
+//issa
                 // --- Sæder pr. sal ---
                 List<Seat> theater1Seats = seatRepository.findAll().stream()
                         .filter(s -> s.getTheater().getTheaterId().equals(theater1.getTheaterId()))
